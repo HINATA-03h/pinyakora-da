@@ -1,3 +1,4 @@
+###必要なライブラリのインポート
 import streamlit as st
 ###日時取得のためのライブラリ
 import datetime
