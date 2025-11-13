@@ -155,7 +155,7 @@ with tabs[1]:
 
 ###カウントダウンタイマーの起動
 with tabs[2]:
-    components.html(open("countdowntimer", "countdowntimer.html", encoding="utf-8").read(), height=600)
+    components.html(open("countdowntimer/countdowntimer.html", encoding="utf-8").read(), height=600)
 
 ###おみくじ
 with tabs[3]:
