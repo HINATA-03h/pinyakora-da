@@ -28,7 +28,7 @@ with tabs[0]:
 
 ###時間　条件分岐
     jst = pytz.timezone('Asia/Tokyo')
-    now = datetime.datetime.now(jst)  # ←ここで日本時間を取得！
+    now = datetime.datetime.now(jst)  
 
     hour = now.hour
     if 4 < hour < 7:
@@ -79,7 +79,8 @@ with tabs[0]:
     st_autorefresh(interval=1000, key="clockapp")
 
 ###現在の日時表示
-    now = datetime.datetime.now()
+    jst = pytz.timezone('Asia/Tokyo')
+    now = datetime.datetime.now(jst)
     current_time = now.strftime("%m月%d日 %H:%M:%S")
 
 ###時計を中央に配置
