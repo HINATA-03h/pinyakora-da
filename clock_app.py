@@ -155,8 +155,7 @@ with tabs[1]:
 
 ###カウントダウンタイマーの起動
 with tabs[2]:
-    html_path = r"C:\Users\HINATA\OneDrive - 信州大学\デスクトップ\VS\streamlit\countdowntimer\countdowntimer.html"
-    components.html(open(html_path, encoding="utf-8").read(), height=600)
+    components.html(open("countdowntimer", encoding="utf-8").read(), height=600)
 
 ###おみくじ
 with tabs[3]:
