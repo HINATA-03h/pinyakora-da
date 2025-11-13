@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>おみくじ</title>
+  <style>
+    body {
+      font-family: "Yu Gothic", sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom right, #ffebf0, #fff5f9);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      font-size: 50px;
+      color: #d63384;
+    }
+    #result {
+      font-size: 2em;
+      margin-top: 20px;
+      color: #333;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 40px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      min-width: 150px;
+    }
+    button {
+      margin-top: 30px;
+      font-size: 1.2em;
+      padding: 10px 20px;
+      background-color: #f78fb3;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #ff5f9e;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎍 おみくじ 🎍</h1>
+  <div id="result">ここをクリックしてね！</div>
+  <button onclick="drawOmikuji()">おみくじを引く</button>
+
+  <script>
+    function drawOmikuji() {
+      const results = [
+        "🌟 大吉 🌟 今日は最高の一日になる！",
+        "😊 中吉 😊 努力が少しずつ実を結びそう。",
+        "🙂 小吉 🙂 思わぬところでいいことがあるかも。",
+        "😐 吉 😐 落ち着いて行動すれば良い方向に。",
+        "😅 凶 😅 無理せず休むのも大切。",
+        "💫 半吉 💫 新しい出会いに注意してね。"
+      ];
+      const randomIndex = Math.floor(Math.random() * results.length);
+      document.getElementById("result").textContent = results[randomIndex];
+    }
+  </script>
+
+</body>
+</html>
