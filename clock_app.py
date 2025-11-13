@@ -2,6 +2,8 @@
 import streamlit as st
 ###日時取得のためのライブラリ
 import datetime
+###タイムゾーン対応のためのライブラリ
+import pytz
 ###自動更新のためのライブラリ
 from streamlit_autorefresh import st_autorefresh
 ###データをテキスト形式に変換するコード
@@ -25,16 +27,22 @@ with tabs[0]:
          return base64.b64encode(data).decode()
 
 ###時間　条件分岐
-    now = datetime.datetime.now()
+    jst = pytz.timezone('Asia/Tokyo')
+    now = datetime.datetime.now(jst)  # ←ここで日本時間を取得！
+
     hour = now.hour
     if 4 < hour < 7:
-        bg_image = bg_image = get_base64_of_image("morning.jpg")
-    elif 7<= hour < 16:
+         bg_image = get_base64_of_image("morning.jpg")
+    elif 7 <= hour < 16:
          bg_image = get_base64_of_image("noon.jpg")
-    elif 16<= hour <19:
+    elif 16 <= hour < 19:
         bg_image = get_base64_of_image("evening.jpg")
     else:
         bg_image = get_base64_of_image("night.jpg")
+
+###時計表示部分も修正
+    now = datetime.datetime.now(jst)
+    current_time = now.strftime("%m月%d日 %H:%M:%S")
 
 ###背景画像の設定
     st.markdown(
