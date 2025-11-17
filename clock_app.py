@@ -17,6 +17,30 @@ import json
 ###HTML埋め込みのためのライブラリ
 import streamlit.components.v1 as components
 
+###スマホ対応のためのCSS
+st.markdown("""
+<style>
+@media (max-width: 600px) {
+    h1 {
+        font-size: 40px !important;
+    }
+    h2 {
+        font-size: 30px !important;
+    }
+    p {
+        font-size: 26px !important;
+    }
+    .clock-text {
+        font-size: 40px !important;
+        padding: 10px 15px !important;
+    }
+    .center-box {
+        height: 20vh !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
 tabs = st.tabs(["時計", "目覚まし時計", "カウントダウンタイマー", "おみくじ", "天気予報"])
 
 with tabs[0]:
