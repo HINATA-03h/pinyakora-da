@@ -140,49 +140,71 @@ with tabs[1]:
     st.markdown("""<h1 style='text-align:center; color:yellow; font-size:80px'>
     目覚まし時計
     </h1>""", unsafe_allow_html=True)
-### アラーム音声のBase64に変換
-    import base64
+
+###音声をBase64で読み込み
     def load_audio_base64(path):
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
 
     alarm_audio_base64 = load_audio_base64("alarm.mp3")
 
-### セッションステートの初期化
+### セッションステートの初期化 
+    if "prepared" not in st.session_state:
+        st.session_state.prepared = False
     if "alarm_stopped_today" not in st.session_state:
         st.session_state.alarm_stopped_today = None
     if "alarm_ringing" not in st.session_state:
         st.session_state.alarm_ringing = False
 
-### アラーム時刻の設定
+### 音声再生の許可を得る準備ボタン
+    st.subheader("🔊 最初に必ず押してください（音声を許可するため）")
+    if st.button("🎵 音声を準備する（無音を再生します）"):
+        st.session_state.prepared = True
+
+###無音ファイルを再生（ブラウザから音声再生権限を取得）
+        st.markdown(
+            """
+            <audio autoplay>
+                <source src="data:audio/mp3;base64,SUQzAwAAAAA=" type="audio/mp3">
+            </audio>
+            """,
+            unsafe_allow_html=True
+        )
+        st.success("音声の準備が完了しました！アラームが自動再生できるようになりました。")
+
+###アラーム時刻の入力 
     alarm_time = st.time_input(
-        "時刻を設定してください",
+        "⏰ アラーム時刻を設定してください",
         value=datetime.time(0, 0),
         key="alarm_time",
         step=datetime.timedelta(minutes=1)
     )
     st.write(f"設定された時刻: {alarm_time}")
 
-### 現在の日時取得
+###現在時刻 
     jst = pytz.timezone("Asia/Tokyo")
     now = datetime.datetime.now(jst)
     today = now.date()
 
-### アラームチェック時刻と現在時刻の比較
-    alarm_should_ring = (
-        now.hour == alarm_time.hour
-        and now.minute == alarm_time.minute
-        and st.session_state.alarm_stopped_today != today
-    )
+###準備完了 → アラームチェック 
+    if st.session_state.prepared:
+        alarm_should_ring = (
+            now.hour == alarm_time.hour
+            and now.minute == alarm_time.minute
+            and st.session_state.alarm_stopped_today != today
+        )
+    else:
+        alarm_should_ring = False
 
+###アラーム自動再生 
     if alarm_should_ring:
         st.session_state.alarm_ringing = True
-### アラーム音再生とメッセージ表示
+
+### alarm.mp3 を自動再生
         st.markdown(
             f"""
             <audio autoplay loop>
                 <source src="data:audio/mp3;base64,{alarm_audio_base64}" type="audio/mp3">
-            </source>
             </audio>
             <h2 style='text-align:center; color:blue; font-size:50px;'>
             ⏰ おはようございます！ ⏰
@@ -193,12 +215,12 @@ with tabs[1]:
     else:
         st.session_state.alarm_ringing = False
 
-### ストップボタンの表示と処理
-    if st.button("ストップ"):
+### 停止ボタン 
+    if st.button("⛔ アラームを停止"):
         st.session_state.alarm_stopped_today = today
         st.session_state.alarm_ringing = False
 
-### アラームが停止された場合、音声を止めるための空のaudioタグを挿入
+###音声を停止させるための空タグ
         st.markdown(
             """
             <audio autoplay>
@@ -207,6 +229,7 @@ with tabs[1]:
             """,
             unsafe_allow_html=True
         )
+
 
 ###カウントダウンタイマーの起動
 with tabs[2]:
