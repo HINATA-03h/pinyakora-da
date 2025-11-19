@@ -135,56 +135,78 @@ with tabs[0]:
         )
 
 
-###目覚まし時計
+### 目覚まし時計
 with tabs[1]:
-    st.markdown("""<h1 style = 'text-align:center; color:yellow; font-size:80px'>目覚まし時計</h1>""", unsafe_allow_html=True)
-    
-###pygameをリセット
-    if "pygame_init" not in st.session_state:
-         st.session_state.pygame_init = True
-         pygame.mixer.quit()
-         pygame.mixer.init()
-         pygame.mixer.music.load("alarm.mp3")
-         st.session_state.alarm_set = False
-         st.session_state.alarm_triggered = False  
+    st.markdown("""<h1 style='text-align:center; color:yellow; font-size:80px'>
+    目覚まし時計
+    </h1>""", unsafe_allow_html=True)
+### アラーム音声のBase64に変換
+    import base64
+    def load_audio_base64(path):
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
 
-###session_stateの初期化
-    if "alarm_playing" not in st.session_state:
-        st.session_state.alarm_playing = False
+    alarm_audio_base64 = load_audio_base64("alarm.mp3")
+
+### セッションステートの初期化
     if "alarm_stopped_today" not in st.session_state:
         st.session_state.alarm_stopped_today = None
-    if "alarm_triggered" not in st.session_state:
-        st.session_state.alarm_triggered = False
+    if "alarm_ringing" not in st.session_state:
+        st.session_state.alarm_ringing = False
 
-###アラーム時間設定
-    alarm_time = st.time_input("時刻を設定してください",  value=datetime.time(0, 0),  key="alarm_time", step= datetime.timedelta(minutes=1))
-    st.write (f"設定された時刻: {alarm_time}")
+### アラーム時刻の設定
+    alarm_time = st.time_input(
+        "時刻を設定してください",
+        value=datetime.time(0, 0),
+        key="alarm_time",
+        step=datetime.timedelta(minutes=1)
+    )
+    st.write(f"設定された時刻: {alarm_time}")
 
-###現在の日時取得
-    now = datetime.datetime.now()
+### 現在の日時取得
+    jst = pytz.timezone("Asia/Tokyo")
+    now = datetime.datetime.now(jst)
     today = now.date()
 
-###アラーム時間と現在時間が一致したら音を鳴らす
-    if (now.hour == alarm_time.hour and now.minute == alarm_time.minute and st.session_state.alarm_stopped_today != today):
-        if not st.session_state.alarm_playing and not st.session_state.alarm_triggered:
-            pygame.mixer.music.play(-1)  ###ループ再生
-            st.session_state.alarm_playing = True
-            st.session_state.alarm_triggered = True
-            st.markdown(
-                """
-                <h2 style='text-align: center; color: blue; font-size: 50px;'>
-                ⏰おはようございます！⏰
-                </h2>
-                """,   
-                unsafe_allow_html=True
-                )  
+### アラームチェック時刻と現在時刻の比較
+    alarm_should_ring = (
+        now.hour == alarm_time.hour
+        and now.minute == alarm_time.minute
+        and st.session_state.alarm_stopped_today != today
+    )
 
-###ストップボタン
-    if st.button("ストップ") and st.session_state.alarm_playing:
-        pygame.mixer.music.stop()
-        st.session_state.alarm_playing = False
-        st.session_state.alarm_triggered = False
-        st.session_state.alarm_stopped_today = today 
+    if alarm_should_ring:
+        st.session_state.alarm_ringing = True
+### アラーム音再生とメッセージ表示
+        st.markdown(
+            f"""
+            <audio autoplay loop>
+                <source src="data:audio/mp3;base64,{alarm_audio_base64}" type="audio/mp3">
+            </source>
+            </audio>
+            <h2 style='text-align:center; color:blue; font-size:50px;'>
+            ⏰ おはようございます！ ⏰
+            </h2>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.session_state.alarm_ringing = False
+
+### ストップボタンの表示と処理
+    if st.button("ストップ"):
+        st.session_state.alarm_stopped_today = today
+        st.session_state.alarm_ringing = False
+
+### アラームが停止された場合、音声を止めるための空のaudioタグを挿入
+        st.markdown(
+            """
+            <audio autoplay>
+                <source src="">
+            </audio>
+            """,
+            unsafe_allow_html=True
+        )
 
 ###カウントダウンタイマーの起動
 with tabs[2]:
