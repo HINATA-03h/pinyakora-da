@@ -122,7 +122,7 @@
       animation: particleBurst 1.2s ease-out forwards;
     }
 
-    /* アニメーション定義 */
+    /* ------- アニメーション定義 ------- */
     @keyframes rainbow {
       0% { background-position: 0% 50%; }
       100% { background-position: 400% 50%; }
@@ -169,8 +169,81 @@
       0% { transform: translate(0, 0) scale(1); opacity: 1; }
       100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity: 0; }
     }
+
+
+
+    /* =====================================================
+       レスポンシブ調整（スマホ・タブレット・PC 全対応）
+    ===================================================== */
+
+    /* スマホ向け（幅 600px 以下） */
+    @media (max-width: 600px) {
+
+      h1 {
+        font-size: 8vw;
+        margin-bottom: 15px;
+      }
+
+      .inputs {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      input {
+        width: 30vw;
+        font-size: 6vw;
+        padding: 10px;
+      }
+
+      .input-group {
+        font-size: 6vw;
+      }
+
+      button {
+        font-size: 6vw;
+        padding: 3vw 6vw;
+        border-radius: 12px;
+        box-shadow: 0 3px 0 #cc6600;
+      }
+
+      #timer {
+        font-size: 20vw;
+        margin-top: 20px;
+      }
+    }
+
+    /* タブレット向け（幅 600〜1024px） */
+    @media (min-width: 600px) and (max-width: 1024px) {
+
+      h1 {
+        font-size: 5vw;
+      }
+
+      input {
+        width: 20vw;
+        font-size: 3vw;
+      }
+
+      button {
+        font-size: 3vw;
+        padding: 1.5vw 3vw;
+      }
+
+      #timer {
+        font-size: 12vw;
+      }
+    }
+
+    /* PC向け（幅 1024px 以上） */
+    @media (min-width: 1024px) {
+      #timer {
+        font-size: 90px;
+      }
+    }
+
   </style>
 </head>
+
 <body>
   <h1>カウントダウンタイマー</h1>
 
@@ -233,21 +306,17 @@
       const bgm = document.getElementById('bgm');
       const alarmSound = document.getElementById('alarmSound'); 
 
-      // --- ★ 修正箇所: アラーム音の再生権限を取得するための処理 ---
-      // 1. ミュートして再生を試みる
+      // アラーム音の再生権限を確保
       alarmSound.muted = true;
       alarmSound.currentTime = 0;
       alarmSound.play().then(() => {
-          // 2. 成功したら一時停止し、ミュート解除（音を出さずに再生権限を得る）
           alarmSound.pause();
           alarmSound.currentTime = 0;
           alarmSound.muted = false;
       }).catch((error) => {
-          // ブロックされた場合はエラー処理（このままでもOK）
           alarmSound.muted = false;
           console.log("Alarm sound pre-play was blocked:", error);
       });
-      // -----------------------------------------------------
 
       bgm.currentTime = 0;
       bgm.play().catch(() => {
@@ -258,12 +327,11 @@
         if (remainingSeconds <= 0) {
           clearInterval(countdownInterval);
           isRunning = false;
-          
-          // タイマー終了時: 再生権限があれば音が鳴るはず
+
           document.getElementById('alarmSound').play().catch((error) => {
               console.log("Alarm sound play at end blocked:", error);
           });
-          
+
           bgm.pause();
           bgm.currentTime = 0;
           celebration();

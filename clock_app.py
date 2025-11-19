@@ -228,7 +228,7 @@ with tabs[4]:
 
     city = st.text_input("都市名を入力してください（例：Tokyo）", value="Tokyo")
 
-###初期化
+###セッションステートの初期化
     if "tenki_data" not in st.session_state:
         st.session_state.tenki_data = None
     if "last_city" not in st.session_state:
