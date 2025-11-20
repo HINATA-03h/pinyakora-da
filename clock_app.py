@@ -17,6 +17,7 @@ import json
 ###HTML埋め込みのためのライブラリ
 import streamlit.components.v1 as components
 
+
 ###スマホ対応のためのCSS
 st.markdown("""
 <style>
@@ -41,7 +42,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs(["時計", "目覚まし時計", "カウントダウンタイマー", "おみくじ", "天気予報"])
+tabs = st.tabs(["時計", "目覚まし時計", "カウントダウンタイマー", "おみくじ", "天気予報","電卓"])
 
 with tabs[0]:
 ###背景画像をBase64で埋め込む関数
@@ -292,4 +293,118 @@ with tabs[4]:
             </p>
             """,
             unsafe_allow_html=True,
+        )
+###電卓
+with tabs[5]:
+    st.markdown("""
+    <h1 style='text-align:center; color:orange; font-size:70px'>
+    電卓
+    </h1>
+    """, unsafe_allow_html=True)
+
+###電卓専用CSS（スマホ100%対応）
+    st.markdown("""
+    <style>
+    .calc-container {
+        width: 100%;
+        max-width: 360px;
+        margin: auto;
+    }
+
+    .display-box {
+        background: #222;
+        color: #fff;
+        padding: 20px;
+        font-size: 8vw;
+        border-radius: 10px;
+        text-align: right;
+        width: 100%;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+
+    /* スマホ向けボタンデザイン */
+    button[kind="secondary"] {
+        background-color: #444 !important;
+        color: white !important;
+        border-radius: 12px !important;
+        height: 70px !important;
+        font-size: 6vw !important;
+    }
+
+    /* Cボタンだけ赤色 */
+    .btn-clear button {
+        background-color: #ff5555 !important;
+        color: white !important;
+        font-weight: bold !important;
+    }
+
+    @media (min-width: 500px) {
+        .display-box {
+            font-size: 40px;
+        }
+        button[kind="secondary"] {
+            font-size: 26px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+###セッションステート初期化 
+    if "calc_display" not in st.session_state:
+        st.session_state.calc_display = ""
+
+    # --- ボタン動作 ---
+    def calc_press(key):
+        if key == "C":
+            st.session_state.calc_display = ""
+        elif key == "=":
+            try:
+                st.session_state.calc_display = str(eval(st.session_state.calc_display))
+            except:
+                st.session_state.calc_display = "Error"
+        else:
+            st.session_state.calc_display += key
+
+###表示部分
+    st.markdown(
+        f"""
+        <div class="calc-container">
+            <div class="display-box">{st.session_state.calc_display}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+###ボタン配置 
+    buttons = [
+        ["7", "8", "9", "+"],
+        ["4", "5", "6", "-"],
+        ["1", "2", "3", "*"],
+        ["0", ".", "=", "/"]
+    ]
+
+    for row in buttons:
+        cols = st.columns(len(row), gap="small")
+        for i, key in enumerate(row):
+            with cols[i]:
+                st.button(
+                    key,
+                    key=f"btn_{key}",
+                    on_click=calc_press,
+                    args=(key,),
+                    use_container_width=True
+                )
+
+###Cボタン
+    st.container().markdown("<br>", unsafe_allow_html=True)
+    colC = st.columns(1)
+    with colC[0]:
+        st.button(
+            "C",
+            key="btn_clear",
+            on_click=calc_press,
+            args=("C",),
+            use_container_width=True,
+            type="secondary"
         )
