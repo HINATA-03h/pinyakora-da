@@ -302,99 +302,117 @@ with tabs[5]:
     </h1>
     """, unsafe_allow_html=True)
 
-### CSSスタイル
+### セッションステートの初期化
+    if "calc_expr" not in st.session_state:
+        st.session_state.calc_expr = ""
+
+###CSSスタイル 
     st.markdown("""
     <style>
-    .calc-container {
+    .calc-wrap {
         width: 100%;
-        max-width: 360px;
+        max-width: 380px;
         margin: auto;
     }
-
-    .display-box {
+    .calc-display {
         background: #222;
-        color: #fff;
-        padding: 20px;
+        color: #0f0;
         font-size: 45px;
-        border-radius: 10px;
+        padding: 20px;
+        border-radius: 12px;
         text-align: right;
+        margin-bottom: 15px;
+        overflow-x: auto;
+    }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .calc-btn {
+        background: #444;
+        color: white;
+        padding: 20px 0;
+        border-radius: 12px;
+        border: none;
+        font-size: 40px;
+        font-weight: bold;
         width: 100%;
-        margin-bottom: 20px;
-        box-sizing: border-box;
     }
-
-    /* ここが重要！！ 記号が消えない設定 */
-    .calc-btn > button {
-        background-color: #444 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        height: 65px !important;
-        font-size: 40px !important;   /* ← 記号が絶対に見える */
-        font-weight: bold !important;
+    .calc-btn:active {
+        background: #777;
     }
-
-    .btn-clear > button {
-        background-color: #ff4444 !important;
+    .calc-clear {
+        background: #ff4444 !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-### セッションステートの初期化
-    if "calc_display" not in st.session_state:
-        st.session_state.calc_display = ""
-
-### ボタンが押されたときの処理
-    def calc_press(key):
-        if key == "C":
-            st.session_state.calc_display = ""
-        elif key == "=":
-            try:
-                st.session_state.calc_display = str(eval(st.session_state.calc_display))
-            except:
-                st.session_state.calc_display = "Error"
-        else:
-            st.session_state.calc_display += key
-
-### 表示ボックス
+### 表示部分
     st.markdown(
-        f"""
-        <div class="calc-container">
-            <div class="display-box">{st.session_state.calc_display}</div>
-        </div>
-        """,
+        f"<div class='calc-wrap'><div class='calc-display'>{st.session_state.calc_expr}</div></div>",
         unsafe_allow_html=True
     )
 
-###ボタン配置
+### ボタン部分
     buttons = [
         ["7", "8", "9", "+"],
         ["4", "5", "6", "-"],
         ["1", "2", "3", "*"],
-        ["0", ".", "=", "/"]
+        ["0", ".", "=", "/"],
     ]
 
+    html = "<div class='calc-grid'>"
     for row in buttons:
-        cols = st.columns(len(row))
-        for i, key in enumerate(row):
-            with cols[i]:
-                st.markdown('<div class="calc-btn">', unsafe_allow_html=True)
-                st.button(
-                    key,
-                    key=f"btn_{key}",
-                    on_click=calc_press,
-                    args=(key,),
-                    use_container_width=True
-                )
-                st.markdown('</div>', unsafe_allow_html=True)
+        for key in row:
+            html += f"""
+                <button class="calc-btn"
+                    onclick="fetch('/calc?key={key}')"
+                >{key}</button>
+            """
+    html += "</div>"
 
 ### クリアボタン
-    st.markdown('<div class="btn-clear">', unsafe_allow_html=True)
-    st.button(
-        "C",
-        key="btn_C",
-        on_click=calc_press,
-        args=("C",),
-        use_container_width=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+    html += """
+        <button class="calc-btn calc-clear" onclick="fetch('/calc?key=C')">
+            C
+        </button>
+    """
+
+    st.markdown(html, unsafe_allow_html=True)
+
+### サーバー部分
+    from urllib.parse import unquote
+    from streamlit.runtime.scriptrunner import add_script_run_ctx
+    import threading
+    import http.server
+    import socketserver
+
+    class CalcHandler(http.server.SimpleHTTPRequestHandler):
+        def do_GET(self):
+            if self.path.startswith("/calc"):
+                key = unquote(self.path.split("=")[1])
+
+                if key == "C":
+                    st.session_state.calc_expr = ""
+                elif key == "=":
+                    try:
+                        st.session_state.calc_expr = str(eval(st.session_state.calc_expr))
+                    except:
+                        st.session_state.calc_expr = "Error"
+                else:
+                    st.session_state.calc_expr += key
+
+                st.experimental_rerun()
+
+    PORT = 8001
+
+    def run_server():
+        with socketserver.TCPServer(("", PORT), CalcHandler) as httpd:
+            httpd.serve_forever()
+
+    if "calc_server_started" not in st.session_state:
+        st.session_state.calc_server_started = True
+        thread = threading.Thread(target=run_server, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
