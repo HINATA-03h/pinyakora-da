@@ -302,7 +302,7 @@ with tabs[5]:
     </h1>
     """, unsafe_allow_html=True)
 
-###電卓専用CSS（スマホ100%対応）
+###電卓用CSS
     st.markdown("""
     <style>
     .calc-container {
@@ -323,28 +323,30 @@ with tabs[5]:
         box-sizing: border-box;
     }
 
-    /* スマホ向けボタンデザイン */
-    button[kind="secondary"] {
+   
+    .stButton>button {
         background-color: #444 !important;
-        color: white !important;
+        color: #fff !important;
+        border: none !important;
         border-radius: 12px !important;
         height: 70px !important;
         font-size: 6vw !important;
+        font-weight: bold;
     }
 
-    /* Cボタンだけ赤色 */
-    .btn-clear button {
-        background-color: #ff5555 !important;
-        color: white !important;
-        font-weight: bold !important;
+    
+    .btn-clear>button {
+        background-color: #ff4444 !important;
     }
 
+  
     @media (min-width: 500px) {
         .display-box {
             font-size: 40px;
         }
-        button[kind="secondary"] {
+        .stButton>button {
             font-size: 26px !important;
+            height: 60px !important;
         }
     }
     </style>
@@ -354,7 +356,7 @@ with tabs[5]:
     if "calc_display" not in st.session_state:
         st.session_state.calc_display = ""
 
-    # --- ボタン動作 ---
+###ボタン押下時処理
     def calc_press(key):
         if key == "C":
             st.session_state.calc_display = ""
@@ -366,7 +368,7 @@ with tabs[5]:
         else:
             st.session_state.calc_display += key
 
-###表示部分
+###表示部 
     st.markdown(
         f"""
         <div class="calc-container">
@@ -396,15 +398,15 @@ with tabs[5]:
                     use_container_width=True
                 )
 
-###Cボタン
-    st.container().markdown("<br>", unsafe_allow_html=True)
+### Cボタン
     colC = st.columns(1)
     with colC[0]:
+        st.markdown('<div class="btn-clear">', unsafe_allow_html=True)
         st.button(
             "C",
             key="btn_clear",
             on_click=calc_press,
             args=("C",),
-            use_container_width=True,
-            type="secondary"
+            use_container_width=True
         )
+        st.markdown('</div>', unsafe_allow_html=True)
