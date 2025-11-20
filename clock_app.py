@@ -302,7 +302,7 @@ with tabs[5]:
     </h1>
     """, unsafe_allow_html=True)
 
-###電卓用CSS
+###CSSスタイル
     st.markdown("""
     <style>
     .calc-container {
@@ -323,23 +323,23 @@ with tabs[5]:
         box-sizing: border-box;
     }
 
-   
     .stButton>button {
         background-color: #444 !important;
-        color: #fff !important;
+        color: white !important;
         border: none !important;
         border-radius: 12px !important;
         height: 70px !important;
         font-size: 6vw !important;
-        font-weight: bold;
+        font-weight: bold !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    
-    .btn-clear>button {
+    .btn-clear > button {
         background-color: #ff4444 !important;
     }
 
-  
     @media (min-width: 500px) {
         .display-box {
             font-size: 40px;
@@ -352,11 +352,11 @@ with tabs[5]:
     </style>
     """, unsafe_allow_html=True)
 
-###セッションステート初期化 
+###セッションステートの初期化
     if "calc_display" not in st.session_state:
         st.session_state.calc_display = ""
 
-###ボタン押下時処理
+###ボタンが押されたときの処理
     def calc_press(key):
         if key == "C":
             st.session_state.calc_display = ""
@@ -368,7 +368,7 @@ with tabs[5]:
         else:
             st.session_state.calc_display += key
 
-###表示部 
+###表示ボックス
     st.markdown(
         f"""
         <div class="calc-container">
@@ -378,7 +378,7 @@ with tabs[5]:
         unsafe_allow_html=True
     )
 
-###ボタン配置 
+###ボタン配置
     buttons = [
         ["7", "8", "9", "+"],
         ["4", "5", "6", "-"],
@@ -390,23 +390,40 @@ with tabs[5]:
         cols = st.columns(len(row), gap="small")
         for i, key in enumerate(row):
             with cols[i]:
+
+                label = f"""
+                <span style='
+                    font-size:6vw;
+                    color:white;
+                    font-weight:bold;
+                '>{key}</span>
+                """
+
                 st.button(
-                    key,
+                    label,
                     key=f"btn_{key}",
                     on_click=calc_press,
                     args=(key,),
-                    use_container_width=True
+                    use_container_width=True,
+                    unsafe_allow_html=True
                 )
 
-### Cボタン
+###クリアボタン
     colC = st.columns(1)
     with colC[0]:
         st.markdown('<div class="btn-clear">', unsafe_allow_html=True)
+
+        label_c = """
+        <span style='font-size:6vw; color:white; font-weight:bold;'>C</span>
+        """
+
         st.button(
-            "C",
+            label_c,
             key="btn_clear",
             on_click=calc_press,
             args=("C",),
-            use_container_width=True
+            use_container_width=True,
+            unsafe_allow_html=True
         )
+
         st.markdown('</div>', unsafe_allow_html=True)
