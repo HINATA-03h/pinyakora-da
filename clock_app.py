@@ -302,7 +302,7 @@ with tabs[5]:
     </h1>
     """, unsafe_allow_html=True)
 
-###CSSスタイル
+### CSSスタイル
     st.markdown("""
     <style>
     .calc-container {
@@ -315,7 +315,7 @@ with tabs[5]:
         background: #222;
         color: #fff;
         padding: 20px;
-        font-size: 8vw;
+        font-size: 45px;
         border-radius: 10px;
         text-align: right;
         width: 100%;
@@ -323,40 +323,28 @@ with tabs[5]:
         box-sizing: border-box;
     }
 
-    .stButton>button {
+    /* ここが重要！！ 記号が消えない設定 */
+    .calc-btn > button {
         background-color: #444 !important;
         color: white !important;
         border: none !important;
         border-radius: 12px !important;
-        height: 70px !important;
-        font-size: 6vw !important;
+        height: 65px !important;
+        font-size: 40px !important;   /* ← 記号が絶対に見える */
         font-weight: bold !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     .btn-clear > button {
         background-color: #ff4444 !important;
     }
-
-    @media (min-width: 500px) {
-        .display-box {
-            font-size: 40px;
-        }
-        .stButton>button {
-            font-size: 26px !important;
-            height: 60px !important;
-        }
-    }
     </style>
     """, unsafe_allow_html=True)
 
-###セッションステートの初期化
+### セッションステートの初期化
     if "calc_display" not in st.session_state:
         st.session_state.calc_display = ""
 
-###ボタンが押されたときの処理
+### ボタンが押されたときの処理
     def calc_press(key):
         if key == "C":
             st.session_state.calc_display = ""
@@ -368,7 +356,7 @@ with tabs[5]:
         else:
             st.session_state.calc_display += key
 
-###表示ボックス
+### 表示ボックス
     st.markdown(
         f"""
         <div class="calc-container">
@@ -387,43 +375,26 @@ with tabs[5]:
     ]
 
     for row in buttons:
-        cols = st.columns(len(row), gap="small")
+        cols = st.columns(len(row))
         for i, key in enumerate(row):
             with cols[i]:
-
-                label = f"""
-                <span style='
-                    font-size:6vw;
-                    color:white;
-                    font-weight:bold;
-                '>{key}</span>
-                """
-
+                st.markdown('<div class="calc-btn">', unsafe_allow_html=True)
                 st.button(
-                    label,
+                    key,
                     key=f"btn_{key}",
                     on_click=calc_press,
                     args=(key,),
-                    use_container_width=True,
-                    unsafe_allow_html=True
+                    use_container_width=True
                 )
+                st.markdown('</div>', unsafe_allow_html=True)
 
-###クリアボタン
-    colC = st.columns(1)
-    with colC[0]:
-        st.markdown('<div class="btn-clear">', unsafe_allow_html=True)
-
-        label_c = """
-        <span style='font-size:6vw; color:white; font-weight:bold;'>C</span>
-        """
-
-        st.button(
-            label_c,
-            key="btn_clear",
-            on_click=calc_press,
-            args=("C",),
-            use_container_width=True,
-            unsafe_allow_html=True
-        )
-
-        st.markdown('</div>', unsafe_allow_html=True)
+### クリアボタン
+    st.markdown('<div class="btn-clear">', unsafe_allow_html=True)
+    st.button(
+        "C",
+        key="btn_C",
+        on_click=calc_press,
+        args=("C",),
+        use_container_width=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
