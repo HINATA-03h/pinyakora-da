@@ -157,11 +157,11 @@ with tabs[1]:
         st.session_state.alarm_ringing = False
 
 ### 音声再生の許可を得る準備ボタン
-    st.subheader("🔊 最初に必ず押してください（音声を許可するため）")
+    st.subheader("🔊 最初に必ず押してください")
     if st.button("🎵 音声を準備する（無音を再生します）"):
         st.session_state.prepared = True
 
-###無音ファイルを再生（ブラウザから音声再生権限を取得）
+###無音ファイルを再生
         st.markdown(
             """
             <audio autoplay>
