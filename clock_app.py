@@ -296,123 +296,110 @@ with tabs[4]:
         )
 ###電卓
 with tabs[5]:
+
     st.markdown("""
     <h1 style='text-align:center; color:orange; font-size:70px'>
     電卓
     </h1>
     """, unsafe_allow_html=True)
 
-### セッションステートの初期化
-    if "calc_expr" not in st.session_state:
-        st.session_state.calc_expr = ""
-
-###CSSスタイル 
-    st.markdown("""
+    html_code = """
     <style>
-    .calc-wrap {
-        width: 100%;
-        max-width: 380px;
+    .calc-container {
+        max-width: 350px;
         margin: auto;
     }
-    .calc-display {
+    .display {
         background: #222;
-        color: #0f0;
-        font-size: 45px;
+        color: white;
         padding: 20px;
-        border-radius: 12px;
+        font-size: 40px;
         text-align: right;
-        margin-bottom: 15px;
-        overflow-x: auto;
+        border-radius: 10px;
+        margin-bottom: 20px;
     }
-    .calc-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+    .row {
+        display: flex;
         gap: 10px;
+        margin-bottom: 10px;
     }
-    .calc-btn {
+    .btn {
+        flex: 1;
+        padding: 20px;
         background: #444;
         color: white;
-        padding: 20px 0;
-        border-radius: 12px;
-        border: none;
-        font-size: 40px;
-        font-weight: bold;
-        width: 100%;
+        font-size: 35px;
+        text-align: center;
+        border-radius: 10px;
+        user-select: none;
     }
-    .calc-btn:active {
-        background: #777;
+    .btn:active {
+        background: #666;
     }
-    .calc-clear {
-        background: #ff4444 !important;
+    .btn-clear {
+        background: #ff4444;
     }
     </style>
-    """, unsafe_allow_html=True)
 
-### 表示部分
-    st.markdown(
-        f"<div class='calc-wrap'><div class='calc-display'>{st.session_state.calc_expr}</div></div>",
-        unsafe_allow_html=True
-    )
+    <div class="calc-container">
+        <div id="display" class="display">0</div>
 
-### ボタン部分
-    buttons = [
-        ["7", "8", "9", "+"],
-        ["4", "5", "6", "-"],
-        ["1", "2", "3", "*"],
-        ["0", ".", "=", "/"],
-    ]
+        <div class="row">
+            <div class="btn">7</div>
+            <div class="btn">8</div>
+            <div class="btn">9</div>
+            <div class="btn">+</div>
+        </div>
+        <div class="row">
+            <div class="btn">4</div>
+            <div class="btn">5</div>
+            <div class="btn">6</div>
+            <div class="btn">-</div>
+        </div>
+        <div class="row">
+            <div class="btn">1</div>
+            <div class="btn">2</div>
+            <div class="btn">3</div>
+            <div class="btn">*</div>
+        </div>
+        <div class="row">
+            <div class="btn">0</div>
+            <div class="btn">.</div>
+            <div class="btn">/</div>
+            <div class="btn">=</div>
+        </div>
 
-    html = "<div class='calc-grid'>"
-    for row in buttons:
-        for key in row:
-            html += f"""
-                <button class="calc-btn"
-                    onclick="fetch('/calc?key={key}')"
-                >{key}</button>
-            """
-    html += "</div>"
+        <div class="row">
+            <div class="btn btn-clear">C</div>
+        </div>
+    </div>
 
-### クリアボタン
-    html += """
-        <button class="calc-btn calc-clear" onclick="fetch('/calc?key=C')">
-            C
-        </button>
+    <script>
+    let display = document.getElementById("display");
+
+    document.querySelectorAll(".btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let val = btn.innerText;
+
+            if (val === "C") {
+                display.innerText = "0";
+            } 
+            else if (val === "=") {
+                try {
+                    display.innerText = eval(display.innerText);
+                } catch {
+                    display.innerText = "Error";
+                }
+            }
+            else {
+                if (display.innerText === "0") 
+                    display.innerText = val;
+                else 
+                    display.innerText += val;
+            }
+        });
+    });
+    </script>
     """
 
-    st.markdown(html, unsafe_allow_html=True)
-
-### サーバー部分
-    from urllib.parse import unquote
-    from streamlit.runtime.scriptrunner import add_script_run_ctx
-    import threading
-    import http.server
-    import socketserver
-
-    class CalcHandler(http.server.SimpleHTTPRequestHandler):
-        def do_GET(self):
-            if self.path.startswith("/calc"):
-                key = unquote(self.path.split("=")[1])
-
-                if key == "C":
-                    st.session_state.calc_expr = ""
-                elif key == "=":
-                    try:
-                        st.session_state.calc_expr = str(eval(st.session_state.calc_expr))
-                    except:
-                        st.session_state.calc_expr = "Error"
-                else:
-                    st.session_state.calc_expr += key
-
-                st.experimental_rerun()
-
-    PORT = 8001
-
-    def run_server():
-        with socketserver.TCPServer(("", PORT), CalcHandler) as httpd:
-            httpd.serve_forever()
-
-    if "calc_server_started" not in st.session_state:
-        st.session_state.calc_server_started = True
-        thread = threading.Thread(target=run_server, daemon=True)
-        add_script_run_ctx(thread)
-        thread.start()
+    st.components.v1.html(html_code, height=600)
