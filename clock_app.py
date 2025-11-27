@@ -42,7 +42,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs(["時計", "目覚まし時計", "カウントダウンタイマー", "おみくじ", "天気予報","電卓"])
+tabs = st.tabs(["時計", "目覚まし時計", "カウントダウンタイマー", "おみくじ", "天気予報","電卓","文字数カウンター"])
 
 with tabs[0]:
 ###背景画像をBase64で埋め込む関数
@@ -403,3 +403,25 @@ with tabs[5]:
     """
 
     st.components.v1.html(html_code, height=600)
+
+###文字数カウンター
+with tabs[6]:
+    st.markdown("""
+    <h1 style='text-align:center; color:green; font-size:70px'>
+    文字数カウンター
+    </h1>
+    """, unsafe_allow_html=True)
+
+    st.markdown("Ctrl + Enter で確定してください。")
+
+    text_input = st.text_area("テキストを入力してください。")
+
+    char_count = len(text_input)
+
+    st.markdown(f"""
+    <h2 style='text-align:center; color:#008000; font-size:50px;
+    border:5px solid white; padding:10px; border-radius:10px;
+    background-color:rgba(255,255,255,0.5);'>
+    文字数: {char_count} 文字
+    </h2>
+    """, unsafe_allow_html=True)
