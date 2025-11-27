@@ -407,7 +407,7 @@ with tabs[5]:
 ###文字数カウンター
 with tabs[6]:
     st.markdown("""
-    <h1 style='text-align:center; color:green; font-size:70px'>
+    <h1 style='text-align:center; color:yellowgreen; font-size:70px'>
     文字数カウンター
     </h1>
     """, unsafe_allow_html=True)
