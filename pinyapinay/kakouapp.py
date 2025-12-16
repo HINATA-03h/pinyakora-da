@@ -1,14 +1,46 @@
 import streamlit as st
 import pandas as pd
 import os
+import base64
 from PIL import Image
 
 # =====================
-# 基本設定
+# ページ設定
 # =====================
 st.set_page_config(page_title="写真投稿＆投票アプリ", layout="centered")
+
+# =====================
+# 背景画像設定（Streamlit Cloud対応）
+# =====================
+def set_background(image_file):
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/png;base64,{encoded}");
+            background-size: cover;
+            background-attachment: fixed;
+        }}
+        .block-container {{
+            background-color: rgba(255, 255, 255, 0.88);
+            padding: 2rem;
+            border-radius: 12px;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_background("background.png")
+
 st.title("📸 写真投稿＆投票アプリ")
 
+# =====================
+# ファイル設定
+# =====================
 PHOTO_FILE = "photos.csv"
 VOTE_FILE = "votes.csv"
 IMAGE_DIR = "images"
@@ -16,22 +48,14 @@ IMAGE_DIR = "images"
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # =====================
-# CSV 初期化（超安全）
+# CSV 初期化
 # =====================
 def init_csv():
-    # 写真CSV
     if not os.path.exists(PHOTO_FILE):
         pd.DataFrame(
             columns=["投稿者", "写真名", "画像ファイル"]
         ).to_csv(PHOTO_FILE, index=False)
-    else:
-        df = pd.read_csv(PHOTO_FILE)
-        for col in ["投稿者", "写真名", "画像ファイル"]:
-            if col not in df.columns:
-                df[col] = ""
-        df.to_csv(PHOTO_FILE, index=False)
 
-    # 投票CSV
     if not os.path.exists(VOTE_FILE):
         pd.DataFrame(
             columns=["投票者", "写真名"]
@@ -52,7 +76,6 @@ if st.button("写真を投稿"):
     if poster == "" or photo_name == "" or photo is None:
         st.warning("すべて入力してください")
     else:
-        # 画像保存（同名回避）
         save_name = f"{photo_name}_{poster}_{photo.name}"
         image_path = os.path.join(IMAGE_DIR, save_name)
 
