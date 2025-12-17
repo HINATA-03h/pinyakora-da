@@ -29,7 +29,6 @@ def set_background(image_file):
         return
 
     img_base64 = get_base64_of_image(image_file)
-
     st.markdown(
         f"""
         <style>
@@ -40,31 +39,58 @@ def set_background(image_file):
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            color: black;
         }}
 
-        /* 中央コンテンツ */
+        /* コンテンツ */
         .block-container {{
-            background-color: rgba(255,255,255,0.95);
+            background-color: rgba(255,255,255,0.92);
             padding: 2rem;
-            border-radius: 14px;
+            border-radius: 16px;
+            color: black;
         }}
 
-        /* 全文字を黒 */
-        * {{
+        /* 見出し */
+        h1, h2, h3, h4 {{
+            color: black;
+        }}
+
+        /* 入力欄 */
+        input, textarea {{
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }}
+
+        input::placeholder {{
+            color: #555555 !important;
+        }}
+
+        /* ラベル */
+        label {{
             color: black !important;
         }}
 
-        /* ボタン */
-        div.stButton > button {{
-            background-color: #2563eb;
-            color: white !important;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 0.6rem 1.4rem;
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+        /* ファイルアップロード */
+        section[data-testid="stFileUploader"] {{
+            background-color: #ffffff !important;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px dashed #999999;
         }}
+
+        /* ボタン */
+        button {{
+            background-color: #1f77b4 !important;
+            color: white !important;
+            border-radius: 10px !important;
+            font-weight: bold !important;
+        }}
+
+        /* 危険ボタン（リセット） */
+        div[data-testid="stButton"] button:has(span:contains("リセット")) {{
+            background-color: #d62728 !important;
+        }}
+
         </style>
         """,
         unsafe_allow_html=True
@@ -92,27 +118,7 @@ st.header("① 写真を投稿する")
 
 poster = st.text_input("あなたの名前（投稿者）")
 photo_name = st.text_input("写真（商品の）名前")
-
-# 🔽 白い箱で包む（超重要）
-st.markdown(
-    """
-    <div style="
-        background-color: #ffffff;
-        padding: 1rem;
-        border-radius: 12px;
-        border: 2px dashed #2563eb;
-        margin-bottom: 1rem;
-    ">
-    <b>📁 写真をアップロードしてください</b>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-photo = st.file_uploader(
-    "※ PNG / JPG / JPEG（200MBまで）",
-    type=["png", "jpg", "jpeg"]
-)
+photo = st.file_uploader("写真をアップロード", type=["png", "jpg", "jpeg"])
 
 if st.button("📤 写真を投稿"):
     if poster == "" or photo_name == "" or photo is None:
@@ -132,7 +138,7 @@ if st.button("📤 写真を投稿"):
         )
         df.to_csv(PHOTO_FILE, index=False)
 
-        st.success("写真を投稿しました！")
+        st.success("写真を投稿しました")
         st.image(image, width=250)
         st.rerun()
 
@@ -151,7 +157,7 @@ else:
     for _, row in photo_df.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"📷 写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
+        st.write(f"写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
         st.markdown("---")
 
     choice = st.radio(
@@ -170,7 +176,7 @@ else:
                 ignore_index=True
             )
             vote_df.to_csv(VOTE_FILE, index=False)
-            st.success("投票しました！")
+            st.success("投票しました")
             st.rerun()
 
 # =====================
@@ -190,7 +196,7 @@ else:
     for _, row in result.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"🏆 {row['写真名']}｜投稿者：{row['投稿者']}｜投票数：{row['投票数']}")
+        st.write(f"📷 {row['写真名']}｜投稿者：{row['投稿者']}｜投票数：{row['投票数']}")
         st.markdown("---")
 
 # =====================
@@ -198,7 +204,7 @@ else:
 # =====================
 st.header("④ 完全リセット（管理用）")
 
-if st.button("⚠ 写真・投票をすべてリセット"):
+if st.button("⚠ 写真・投票すべてリセット"):
     pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
