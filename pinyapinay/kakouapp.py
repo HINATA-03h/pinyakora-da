@@ -42,7 +42,6 @@ if os.path.exists(BACKGROUND_IMAGE):
         .stApp {{
             background-image: url("data:image/png;base64,{bg}");
             background-size: cover;
-            background-position: center;
         }}
         .block-container {{
             background-color: rgba(255,255,255,0.96);
@@ -74,8 +73,8 @@ if os.path.exists(BACKGROUND_IMAGE):
 # =====================
 # セッション状態
 # =====================
-if "show_image" not in st.session_state:
-    st.session_state.show_image = None
+if "zoom_image" not in st.session_state:
+    st.session_state.zoom_image = None
 
 # =====================
 # タイトル
@@ -97,7 +96,6 @@ if st.button("写真を投稿"):
     else:
         save_name = f"{photo_name}_{poster}_{photo.name}"
         image_path = os.path.join(IMAGE_DIR, save_name)
-
         Image.open(photo).save(image_path)
 
         df = pd.read_csv(PHOTO_FILE)
@@ -108,7 +106,7 @@ if st.button("写真を投稿"):
         st.rerun()
 
 # =====================
-# ② 投票
+# ② 投票（投稿写真に拡大機能）
 # =====================
 st.header("② 投票する")
 
@@ -119,9 +117,13 @@ if photo_df.empty:
 else:
     voter = st.text_input("あなたの名前（投票者）")
 
-    for _, row in photo_df.iterrows():
-        st.image(row["画像ファイル"], width=200)
+    for i, row in photo_df.iterrows():
+        st.image(row["画像ファイル"], width=220)
         st.write(f"📷 {row['写真名']}（投稿者：{row['投稿者']}）")
+
+        if st.button("🔍 写真を拡大表示", key=f"zoom_post_{i}"):
+            st.session_state.zoom_image = row["画像ファイル"]
+
         st.markdown("---")
 
     choice = st.radio("どれを買いたいですか？", photo_df["写真名"].tolist())
@@ -137,7 +139,7 @@ else:
             st.rerun()
 
 # =====================
-# ③ 投票結果（写真付き＋アニメ）
+# ③ 投票結果（写真＋アニメ）
 # =====================
 st.header("③ 投票結果")
 
@@ -151,26 +153,26 @@ if not vote_df.empty:
 
         merged = result.merge(photo_df, on="写真名", how="left")
 
-        for i, row in enumerate(merged.itertuples(), start=1):
-            st.markdown(f"## 🥇 第{i}位：{row.写真名}（{row.投票数}票）")
+        for rank, row in enumerate(merged.itertuples(), start=1):
+            st.markdown(f"## 🥇 第{rank}位：{row.写真名}（{row.投票数}票）")
             st.image(row.画像ファイル, width=300)
 
-            if st.button(f"🔍 {row.写真名} を拡大表示", key=row.写真名):
-                st.session_state.show_image = row.画像ファイル
+            if st.button("🔍 写真を拡大表示", key=f"zoom_rank_{rank}"):
+                st.session_state.zoom_image = row.画像ファイル
 
             time.sleep(1.5)
 
         st.balloons()
 
 # =====================
-# 拡大表示
+# 拡大表示モーダル風
 # =====================
-if st.session_state.show_image:
+if st.session_state.zoom_image:
     st.markdown("## 🖼 写真を拡大表示")
-    st.image(st.session_state.show_image, use_container_width=True)
+    st.image(st.session_state.zoom_image, use_container_width=True)
 
     if st.button("❌ 閉じる"):
-        st.session_state.show_image = None
+        st.session_state.zoom_image = None
         st.rerun()
 
 # =====================
