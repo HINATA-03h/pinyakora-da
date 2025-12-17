@@ -26,7 +26,7 @@ def get_base64_of_image(image_file):
 
 def set_background(image_file):
     if not os.path.exists(image_file):
-        st.error("⚠ 背景画像が見つかりません")
+        st.warning("背景画像が見つかりません")
         return
 
     img_base64 = get_base64_of_image(image_file)
@@ -41,32 +41,45 @@ def set_background(image_file):
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            color: black;
         }}
 
         /* 中央コンテンツ */
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255,255,255,0.92);
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 14px;
             color: black;
         }}
 
-        /* 見出し */
-        h1, h2, h3, h4, h5, h6 {{
-            color: black;
-        }}
-
-        /* テキスト・ラベル */
-        p, span, label, div {{
-            color: black;
-        }}
-
-        /* 入力欄 */
-        input, textarea {{
+        /* 文字色 */
+        h1, h2, h3, h4, h5, h6, p, span, label {{
             color: black !important;
         }}
 
+        /* =====================
+           🔥 ボタン完全強化 🔥
+           ===================== */
+        div.stButton > button {{
+            background-color: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 0.6rem 1.4rem;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            transition: all 0.2s ease;
+        }}
+
+        div.stButton > button:hover {{
+            background-color: #1e40af;
+            transform: translateY(-2px);
+        }}
+
+        div.stButton > button:active {{
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -96,7 +109,7 @@ poster = st.text_input("あなたの名前（投稿者）")
 photo_name = st.text_input("写真（商品の）名前")
 photo = st.file_uploader("写真をアップロード", type=["png", "jpg", "jpeg"])
 
-if st.button("写真を投稿"):
+if st.button("📤 写真を投稿"):
     if poster == "" or photo_name == "" or photo is None:
         st.warning("すべて入力してください")
     else:
@@ -109,12 +122,12 @@ if st.button("写真を投稿"):
         df = pd.read_csv(PHOTO_FILE)
         df = pd.concat(
             [df, pd.DataFrame([[poster, photo_name, image_path]],
-                              columns=["投稿者", "写真名", "画像ファイル"])],
+            columns=["投稿者", "写真名", "画像ファイル"])],
             ignore_index=True
         )
         df.to_csv(PHOTO_FILE, index=False)
 
-        st.success("写真を投稿しました")
+        st.success("写真を投稿しました！")
         st.image(image, width=250)
         st.rerun()
 
@@ -133,7 +146,7 @@ else:
     for _, row in photo_df.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
+        st.write(f"📷 写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
         st.markdown("---")
 
     choice = st.radio(
@@ -142,7 +155,7 @@ else:
         index=None
     )
 
-    if st.button("投票する"):
+    if st.button("🗳 投票する"):
         if voter == "" or choice is None:
             st.warning("名前と選択をしてください")
         else:
@@ -152,8 +165,7 @@ else:
                 ignore_index=True
             )
             vote_df.to_csv(VOTE_FILE, index=False)
-
-            st.success("投票しました")
+            st.success("投票しました！")
             st.rerun()
 
 # =====================
@@ -173,7 +185,7 @@ else:
     for _, row in result.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"📷 {row['写真名']} ｜ 投稿者：{row['投稿者']} ｜ 投票数：{row['投票数']}")
+        st.write(f"🏆 {row['写真名']} ｜ 投稿者：{row['投稿者']} ｜ 投票数：{row['投票数']}")
         st.markdown("---")
 
 # =====================
@@ -181,7 +193,7 @@ else:
 # =====================
 st.header("④ 完全リセット（管理用）")
 
-if st.button("⚠ 写真・投票すべてリセット"):
+if st.button("⚠ 写真・投票をすべてリセット"):
     pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
