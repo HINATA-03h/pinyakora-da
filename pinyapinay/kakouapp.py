@@ -18,15 +18,16 @@ BACKGROUND_IMAGE = os.path.join(BASE_DIR, "Background.png")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # =====================
-# 起動時リセット（リロード＝全消去）
+# CSV 初期化（存在しない時だけ）
 # =====================
-pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
-pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
-for f in os.listdir(IMAGE_DIR):
-    os.remove(os.path.join(IMAGE_DIR, f))
+if not os.path.exists(PHOTO_FILE):
+    pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
+
+if not os.path.exists(VOTE_FILE):
+    pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
 # =====================
-# 背景設定（Base64）
+# 背景画像（Base64）
 # =====================
 def get_base64_of_image(image_file):
     with open(image_file, "rb") as f:
@@ -42,45 +43,22 @@ if os.path.exists(BACKGROUND_IMAGE):
             background-size: cover;
             background-position: center;
         }}
-
-        /* 白カード */
         .block-container {{
-            background-color: rgba(255,255,255,0.96);
+            background-color: rgba(255,255,255,0.97);
             padding: 2.5rem;
             border-radius: 16px;
         }}
-
-        /* 文字をすべて黒に */
         h1, h2, h3, p, label, span, div {{
-            color: #000000 !important;
+            color: #000 !important;
         }}
-
-        /* 入力欄 */
         input, textarea {{
-            background-color: #ffffff !important;
-            color: #000000 !important;
+            background-color: #fff !important;
+            color: #000 !important;
         }}
-
-        /* radio */
-        div[role="radiogroup"] label {{
-            color: #000000 !important;
-            font-weight: 600;
-        }}
-
-        /* file uploader */
-        section[data-testid="stFileUploader"] {{
-            background-color: #f5f5f5;
-            padding: 12px;
-            border-radius: 10px;
-            color: #000000 !important;
-        }}
-
         section[data-testid="stFileUploader"] * {{
-            color: #000000 !important;
+            color: #000 !important;
             font-weight: 600;
         }}
-
-        /* ボタン */
         button {{
             background-color: #1f77b4 !important;
             color: white !important;
@@ -119,7 +97,7 @@ if st.button("写真を投稿"):
         df = pd.read_csv(PHOTO_FILE)
         df = pd.concat(
             [df, pd.DataFrame([[poster, photo_name, image_path]],
-            columns=["投稿者", "写真名", "画像ファイル"])],
+             columns=["投稿者", "写真名", "画像ファイル"])],
             ignore_index=True
         )
         df.to_csv(PHOTO_FILE, index=False)
@@ -154,7 +132,8 @@ else:
         else:
             vote_df = pd.read_csv(VOTE_FILE)
             vote_df = pd.concat(
-                [vote_df, pd.DataFrame([[voter, choice]], columns=["投票者", "写真名"])],
+                [vote_df, pd.DataFrame([[voter, choice]],
+                 columns=["投票者", "写真名"])],
                 ignore_index=True
             )
             vote_df.to_csv(VOTE_FILE, index=False)
@@ -176,3 +155,19 @@ else:
 
     for _, row in result.iterrows():
         st.write(f"📷 {row['写真名']}｜投票数：{row['投票数']}")
+        st.markdown("---")
+
+# =====================
+# ④ 完全リセット（管理用）
+# =====================
+st.header("④ 管理者用リセット")
+
+if st.button("⚠ 写真・投票をすべてリセット"):
+    pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
+    pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
+
+    for f in os.listdir(IMAGE_DIR):
+        os.remove(os.path.join(IMAGE_DIR, f))
+
+    st.success("すべてリセットしました")
+    st.rerun()
