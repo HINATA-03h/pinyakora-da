@@ -143,19 +143,44 @@ else:
 # =====================
 # ③ 投票結果
 # =====================
-st.header("③ 投票結果")
+# =====================
+# ③ 投票結果（TOP3）
+# =====================
+st.header("③ 投票結果（TOP3）")
 
 vote_df = pd.read_csv(VOTE_FILE)
 
 if len(vote_df) == 0:
     st.write("まだ投票がありません")
 else:
+    # 投票数を集計
     result = vote_df["写真名"].value_counts().reset_index()
     result.columns = ["写真名", "投票数"]
 
-    for _, row in result.iterrows():
-        st.write(f"📷 {row['写真名']}｜投票数：{row['投票数']}")
+    # 写真情報と結合
+    photo_df = pd.read_csv(PHOTO_FILE)
+    result = result.merge(photo_df, on="写真名", how="left")
+
+    # 上位3位まで取得（多い順）
+    top3 = result.sort_values("投票数", ascending=False).head(3)
+
+    # 表示は「3位 → 2位 → 1位」
+    rank = len(top3)
+
+    for _, row in top3[::-1].iterrows():
+        st.subheader(f"🏅 第{rank}位")
+
+        if os.path.exists(row["画像ファイル"]):
+            st.image(row["画像ファイル"], width=250)
+
+        st.write(
+            f"📷 写真名：{row['写真名']}  \n"
+            f"👤 投稿者：{row['投稿者']}  \n"
+            f"🗳 投票数：{row['投票数']}"
+        )
+
         st.markdown("---")
+        rank -= 1
 
 # =====================
 # ④ 完全リセット（管理用）
