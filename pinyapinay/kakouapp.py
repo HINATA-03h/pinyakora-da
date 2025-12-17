@@ -79,7 +79,7 @@ if "zoom_image" not in st.session_state:
 # =====================
 # タイトル
 # =====================
-st.title("📸 写真投稿＆投票アプリ")
+st.title("📸製品販売シミュレーター(≧▽≦)")
 
 # =====================
 # ① 写真投稿
@@ -90,7 +90,7 @@ poster = st.text_input("あなたの名前（投稿者）")
 photo_name = st.text_input("写真（商品の）名前")
 photo = st.file_uploader("写真をアップロード", type=["png", "jpg", "jpeg"])
 
-if st.button("写真を投稿"):
+if st.button("投稿"):
     if poster == "" or photo_name == "" or photo is None:
         st.warning("すべて入力してください")
     else:
@@ -128,7 +128,7 @@ else:
 
     choice = st.radio("どれを買いたいですか？", photo_df["写真名"].tolist())
 
-    if st.button("投票する"):
+    if st.button("投票"):
         if voter == "":
             st.warning("名前を入力してください")
         else:
@@ -164,7 +164,7 @@ if not vote_df.empty:
 # 拡大表示エリア（投稿・投票時のみ）
 # =====================
 if st.session_state.zoom_image:
-    st.markdown("## 🖼 写真を拡大表示")
+    st.markdown("## 写真を拡大表示")
     st.image(st.session_state.zoom_image, use_container_width=True)
 
     if st.button("❌ 閉じる"):
