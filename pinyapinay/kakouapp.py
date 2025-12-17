@@ -30,21 +30,43 @@ def set_background(image_file):
         return
 
     img_base64 = get_base64_of_image(image_file)
+
     st.markdown(
         f"""
         <style>
+        /* 背景 */
         .stApp {{
             background-image: url("data:image/png;base64,{img_base64}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            color: black;
         }}
+
+        /* 中央コンテンツ */
         .block-container {{
-            background-color: rgba(255,255,255,0.9);
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 2rem;
             border-radius: 12px;
+            color: black;
         }}
+
+        /* 見出し */
+        h1, h2, h3, h4, h5, h6 {{
+            color: black;
+        }}
+
+        /* テキスト・ラベル */
+        p, span, label, div {{
+            color: black;
+        }}
+
+        /* 入力欄 */
+        input, textarea {{
+            color: black !important;
+        }}
+
         </style>
         """,
         unsafe_allow_html=True
@@ -87,7 +109,7 @@ if st.button("写真を投稿"):
         df = pd.read_csv(PHOTO_FILE)
         df = pd.concat(
             [df, pd.DataFrame([[poster, photo_name, image_path]],
-            columns=["投稿者", "写真名", "画像ファイル"])],
+                              columns=["投稿者", "写真名", "画像ファイル"])],
             ignore_index=True
         )
         df.to_csv(PHOTO_FILE, index=False)
@@ -130,6 +152,7 @@ else:
                 ignore_index=True
             )
             vote_df.to_csv(VOTE_FILE, index=False)
+
             st.success("投票しました")
             st.rerun()
 
@@ -150,7 +173,7 @@ else:
     for _, row in result.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"📷 {row['写真名']}｜投稿者：{row['投稿者']}｜投票数：{row['投票数']}")
+        st.write(f"📷 {row['写真名']} ｜ 投稿者：{row['投稿者']} ｜ 投票数：{row['投票数']}")
         st.markdown("---")
 
 # =====================
