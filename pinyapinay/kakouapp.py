@@ -49,42 +49,21 @@ def set_background(image_file):
             border-radius: 14px;
         }}
 
-        /* 文字をすべて黒 */
-        h1, h2, h3, h4, h5, h6, p, span, label {{
+        /* 全文字を黒 */
+        * {{
             color: black !important;
         }}
 
-        /* =====================
-           📁 ファイルアップローダー
-           ===================== */
-        section[data-testid="stFileUploader"] {{
-            background-color: #f8fafc;
-            border: 2px dashed #2563eb;
-            border-radius: 12px;
-            padding: 1rem;
-        }}
-
-        section[data-testid="stFileUploader"] * {{
-            color: black !important;
-            font-weight: 600;
-        }}
-
-        /* =====================
-           🔥 ボタン強化
-           ===================== */
+        /* ボタン */
         div.stButton > button {{
             background-color: #2563eb;
-            color: white;
+            color: white !important;
             font-size: 16px;
             font-weight: bold;
             padding: 0.6rem 1.4rem;
             border-radius: 10px;
             border: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-        }}
-
-        div.stButton > button:hover {{
-            background-color: #1e40af;
         }}
         </style>
         """,
@@ -113,7 +92,27 @@ st.header("① 写真を投稿する")
 
 poster = st.text_input("あなたの名前（投稿者）")
 photo_name = st.text_input("写真（商品の）名前")
-photo = st.file_uploader("写真をアップロード", type=["png", "jpg", "jpeg"])
+
+# 🔽 白い箱で包む（超重要）
+st.markdown(
+    """
+    <div style="
+        background-color: #ffffff;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 2px dashed #2563eb;
+        margin-bottom: 1rem;
+    ">
+    <b>📁 写真をアップロードしてください</b>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+photo = st.file_uploader(
+    "※ PNG / JPG / JPEG（200MBまで）",
+    type=["png", "jpg", "jpeg"]
+)
 
 if st.button("📤 写真を投稿"):
     if poster == "" or photo_name == "" or photo is None:
@@ -191,7 +190,7 @@ else:
     for _, row in result.iterrows():
         if os.path.exists(row["画像ファイル"]):
             st.image(row["画像ファイル"], width=200)
-        st.write(f"🏆 {row['写真名']} ｜ 投稿者：{row['投稿者']} ｜ 投票数：{row['投票数']}")
+        st.write(f"🏆 {row['写真名']}｜投稿者：{row['投稿者']}｜投票数：{row['投票数']}")
         st.markdown("---")
 
 # =====================
