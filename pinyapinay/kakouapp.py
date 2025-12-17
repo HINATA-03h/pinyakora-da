@@ -3,16 +3,28 @@ import pandas as pd
 import os
 import base64
 from PIL import Image
+import shutil
 
 # =====================
-# ページ設定
+# 基本設定
 # =====================
 st.set_page_config(page_title="写真投稿＆投票アプリ", layout="centered")
+st.title("📸 写真投稿＆投票アプリ")
+
+PHOTO_FILE = "photos.csv"
+VOTE_FILE = "votes.csv"
+IMAGE_DIR = "images"
+BACKGROUND_IMAGE = "ChatGPT Image 2025年12月17日 08_46_49.png"
+
+os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # =====================
-# 背景画像設定（Streamlit Cloud対応）
+# 背景画像設定（安全版）
 # =====================
 def set_background(image_file):
+    if not os.path.exists(image_file):
+        return
+
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
@@ -25,7 +37,7 @@ def set_background(image_file):
             background-attachment: fixed;
         }}
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.88);
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 2rem;
             border-radius: 12px;
         }}
@@ -34,32 +46,17 @@ def set_background(image_file):
         unsafe_allow_html=True
     )
 
-set_background("background.png")
-
-st.title("📸 写真投稿＆投票アプリ")
-
-# =====================
-# ファイル設定
-# =====================
-PHOTO_FILE = "photos.csv"
-VOTE_FILE = "votes.csv"
-IMAGE_DIR = "images"
-
-os.makedirs(IMAGE_DIR, exist_ok=True)
+set_background(BACKGROUND_IMAGE)
 
 # =====================
 # CSV 初期化
 # =====================
 def init_csv():
     if not os.path.exists(PHOTO_FILE):
-        pd.DataFrame(
-            columns=["投稿者", "写真名", "画像ファイル"]
-        ).to_csv(PHOTO_FILE, index=False)
+        pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
 
     if not os.path.exists(VOTE_FILE):
-        pd.DataFrame(
-            columns=["投票者", "写真名"]
-        ).to_csv(VOTE_FILE, index=False)
+        pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
 init_csv()
 
@@ -82,15 +79,13 @@ if st.button("写真を投稿"):
         image = Image.open(photo)
         image.save(image_path)
 
-        photo_df = pd.read_csv(PHOTO_FILE)
-
-        new_row = pd.DataFrame(
-            [[poster, photo_name, image_path]],
-            columns=["投稿者", "写真名", "画像ファイル"]
+        df = pd.read_csv(PHOTO_FILE)
+        df = pd.concat(
+            [df, pd.DataFrame([[poster, photo_name, image_path]],
+            columns=["投稿者", "写真名", "画像ファイル"])],
+            ignore_index=True
         )
-
-        photo_df = pd.concat([photo_df, new_row], ignore_index=True)
-        photo_df.to_csv(PHOTO_FILE, index=False)
+        df.to_csv(PHOTO_FILE, index=False)
 
         st.success("写真を投稿しました！")
         st.image(image, width=250)
@@ -112,8 +107,7 @@ else:
 
     for _, row in photo_df.iterrows():
         img = row["画像ファイル"]
-
-        if isinstance(img, str) and img != "" and os.path.exists(img):
+        if isinstance(img, str) and os.path.exists(img):
             st.image(img, width=200)
         else:
             st.write("（画像なし）")
@@ -124,8 +118,7 @@ else:
     selected = st.radio(
         "どの写真（商品）を買いたいですか？",
         photo_df["写真名"].tolist(),
-        index=None,
-        key="vote_choice"
+        index=None
     )
 
     if st.button("投票する"):
@@ -135,17 +128,14 @@ else:
             st.warning("写真を選択してください")
         else:
             vote_df = pd.read_csv(VOTE_FILE)
-
-            new_vote = pd.DataFrame(
-                [[voter, selected]],
-                columns=["投票者", "写真名"]
+            vote_df = pd.concat(
+                [vote_df, pd.DataFrame([[voter, selected]],
+                columns=["投票者", "写真名"])],
+                ignore_index=True
             )
-
-            vote_df = pd.concat([vote_df, new_vote], ignore_index=True)
             vote_df.to_csv(VOTE_FILE, index=False)
 
             st.success("投票しました！")
-            del st.session_state["vote_choice"]
             st.rerun()
 
 # =====================
@@ -158,30 +148,4 @@ vote_df = pd.read_csv(VOTE_FILE)
 if len(vote_df) == 0:
     st.write("まだ投票がありません")
 else:
-    result = vote_df["写真名"].value_counts().reset_index()
-    result.columns = ["写真名", "投票数"]
-
-    result = result.merge(photo_df, on="写真名", how="left")
-
-    for _, row in result.iterrows():
-        img = row["画像ファイル"]
-
-        if isinstance(img, str) and img != "" and os.path.exists(img):
-            st.image(img, width=200)
-        else:
-            st.write("（画像なし）")
-
-        st.write(
-            f"📷 {row['写真名']} ｜ 投稿者：{row['投稿者']} ｜ 投票数：{row['投票数']}"
-        )
-        st.markdown("---")
-
-# =====================
-# ④ 投票リセット
-# =====================
-st.header("④ 投票リセット（管理用）")
-
-if st.button("⚠ 投票結果をリセットする"):
-    pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
-    st.success("投票結果をリセットしました")
-    st.rerun()
+    result
