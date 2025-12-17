@@ -26,7 +26,6 @@ def get_base64_of_image(image_file):
 
 def set_background(image_file):
     if not os.path.exists(image_file):
-        st.warning("背景画像が見つかりません")
         return
 
     img_base64 = get_base64_of_image(image_file)
@@ -45,19 +44,33 @@ def set_background(image_file):
 
         /* 中央コンテンツ */
         .block-container {{
-            background-color: rgba(255,255,255,0.92);
+            background-color: rgba(255,255,255,0.95);
             padding: 2rem;
             border-radius: 14px;
-            color: black;
         }}
 
-        /* 文字色 */
+        /* 文字をすべて黒 */
         h1, h2, h3, h4, h5, h6, p, span, label {{
             color: black !important;
         }}
 
         /* =====================
-           🔥 ボタン完全強化 🔥
+           📁 ファイルアップローダー
+           ===================== */
+        section[data-testid="stFileUploader"] {{
+            background-color: #f8fafc;
+            border: 2px dashed #2563eb;
+            border-radius: 12px;
+            padding: 1rem;
+        }}
+
+        section[data-testid="stFileUploader"] * {{
+            color: black !important;
+            font-weight: 600;
+        }}
+
+        /* =====================
+           🔥 ボタン強化
            ===================== */
         div.stButton > button {{
             background-color: #2563eb;
@@ -68,17 +81,10 @@ def set_background(image_file):
             border-radius: 10px;
             border: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-            transition: all 0.2s ease;
         }}
 
         div.stButton > button:hover {{
             background-color: #1e40af;
-            transform: translateY(-2px);
-        }}
-
-        div.stButton > button:active {{
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
         }}
         </style>
         """,
