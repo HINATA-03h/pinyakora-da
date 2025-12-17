@@ -28,7 +28,7 @@ if not os.path.exists(VOTE_FILE):
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
 # =====================
-# 背景画像（Base64）
+# 背景画像
 # =====================
 def get_base64_of_image(image_file):
     with open(image_file, "rb") as f:
@@ -44,39 +44,22 @@ if os.path.exists(BACKGROUND_IMAGE):
             background-size: cover;
             background-position: center;
         }}
-
-        /* 中央コンテンツ */
         .block-container {{
             background-color: rgba(255,255,255,0.96);
             padding: 2rem;
             border-radius: 16px;
         }}
-
-        /* 文字は黒 */
-        html, body, h1, h2, h3, h4, p, label, span, div {{
-            color: #000000 !important;
+        html, body, h1, h2, h3, p, label {{
+            color: black !important;
         }}
-
-        /* 入力ボックス */
         input, textarea {{
-            background-color: #ffffff !important;
-            color: #000000 !important;
-            border: 1px solid #999 !important;
+            background-color: white !important;
+            color: black !important;
         }}
-
-        /* ファイルアップローダー */
-        section[data-testid="stFileUploader"] {{
-            background-color: #ffffff !important;
-            padding: 12px;
-            border-radius: 10px;
-        }}
-
         section[data-testid="stFileUploader"] * {{
-            color: #000000 !important;
+            color: black !important;
             font-weight: 600;
         }}
-
-        /* ボタン */
         button {{
             background-color: #1f77b4 !important;
             color: white !important;
@@ -87,6 +70,12 @@ if os.path.exists(BACKGROUND_IMAGE):
         """,
         unsafe_allow_html=True
     )
+
+# =====================
+# セッション状態
+# =====================
+if "show_image" not in st.session_state:
+    st.session_state.show_image = None
 
 # =====================
 # タイトル
@@ -109,15 +98,13 @@ if st.button("写真を投稿"):
         save_name = f"{photo_name}_{poster}_{photo.name}"
         image_path = os.path.join(IMAGE_DIR, save_name)
 
-        image = Image.open(photo)
-        image.save(image_path)
+        Image.open(photo).save(image_path)
 
         df = pd.read_csv(PHOTO_FILE)
         df.loc[len(df)] = [poster, photo_name, image_path]
         df.to_csv(PHOTO_FILE, index=False)
 
         st.success("写真を投稿しました")
-        st.image(image, width=250)
         st.rerun()
 
 # =====================
@@ -133,8 +120,7 @@ else:
     voter = st.text_input("あなたの名前（投票者）")
 
     for _, row in photo_df.iterrows():
-        if os.path.exists(row["画像ファイル"]):
-            st.image(row["画像ファイル"], width=220)
+        st.image(row["画像ファイル"], width=200)
         st.write(f"📷 {row['写真名']}（投稿者：{row['投稿者']}）")
         st.markdown("---")
 
@@ -151,32 +137,44 @@ else:
             st.rerun()
 
 # =====================
-# ③ 投票結果（アニメーション）
+# ③ 投票結果（写真付き＋アニメ）
 # =====================
 st.header("③ 投票結果")
 
 vote_df = pd.read_csv(VOTE_FILE)
 
-if vote_df.empty:
-    st.write("まだ投票がありません")
-else:
+if not vote_df.empty:
     if st.button("🏆 投票結果を見る"):
         result = vote_df["写真名"].value_counts().reset_index()
         result.columns = ["写真名", "投票数"]
         result = result.head(3)
 
-        placeholder = st.empty()
+        merged = result.merge(photo_df, on="写真名", how="left")
 
-        for i, row in enumerate(result.itertuples(), start=1):
-            placeholder.markdown(
-                f"## 🥇 第{i}位：{row.写真名}（{row.投票数}票）"
-            )
+        for i, row in enumerate(merged.itertuples(), start=1):
+            st.markdown(f"## 🥇 第{i}位：{row.写真名}（{row.投票数}票）")
+            st.image(row.画像ファイル, width=300)
+
+            if st.button(f"🔍 {row.写真名} を拡大表示", key=row.写真名):
+                st.session_state.show_image = row.画像ファイル
+
             time.sleep(1.5)
 
-        st.balloons()  # 🎉 クラッカー
+        st.balloons()
 
 # =====================
-# ④ 完全リセット
+# 拡大表示
+# =====================
+if st.session_state.show_image:
+    st.markdown("## 🖼 写真を拡大表示")
+    st.image(st.session_state.show_image, use_container_width=True)
+
+    if st.button("❌ 閉じる"):
+        st.session_state.show_image = None
+        st.rerun()
+
+# =====================
+# ④ リセット
 # =====================
 st.header("④ 管理者用リセット")
 
