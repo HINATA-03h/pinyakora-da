@@ -4,6 +4,7 @@ import os
 import base64
 from PIL import Image
 import shutil
+import time
 
 # =====================
 # 基本設定
@@ -14,12 +15,35 @@ st.title("📸 写真投稿＆投票アプリ")
 PHOTO_FILE = "photos.csv"
 VOTE_FILE = "votes.csv"
 IMAGE_DIR = "images"
-BACKGROUND_IMAGE = "ChatGPT Image 2025年12月17日 08_46_49.png"
+BACKGROUND_IMAGE = "Background.png"
 
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # =====================
-# 背景画像設定（安全版）
+# 🔥 起動時 完全初期化（重要）
+# =====================
+if "initialized" not in st.session_state:
+    # CSV削除
+    if os.path.exists(PHOTO_FILE):
+        os.remove(PHOTO_FILE)
+    if os.path.exists(VOTE_FILE):
+        os.remove(VOTE_FILE)
+
+    # 画像削除
+    if os.path.exists(IMAGE_DIR):
+        shutil.rmtree(IMAGE_DIR)
+    os.makedirs(IMAGE_DIR, exist_ok=True)
+
+    st.session_state.initialized = True
+
+# =====================
+# CSV 初期化
+# =====================
+pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
+pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
+
+# =====================
+# 背景画像（キャッシュ無効化）
 # =====================
 def set_background(image_file):
     if not os.path.exists(image_file):
@@ -28,16 +52,18 @@ def set_background(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
+    cache_buster = int(time.time())
+
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background-image: url("data:image/png;base64,{encoded}");
+            background-image: url("data:image/png;base64,{encoded}?v={cache_buster}");
             background-size: cover;
             background-attachment: fixed;
         }}
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255,255,255,0.9);
             padding: 2rem;
             border-radius: 12px;
         }}
@@ -47,18 +73,6 @@ def set_background(image_file):
     )
 
 set_background(BACKGROUND_IMAGE)
-
-# =====================
-# CSV 初期化
-# =====================
-def init_csv():
-    if not os.path.exists(PHOTO_FILE):
-        pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
-
-    if not os.path.exists(VOTE_FILE):
-        pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
-
-init_csv()
 
 # =====================
 # ① 写真投稿
@@ -73,18 +87,14 @@ if st.button("写真を投稿"):
     if poster == "" or photo_name == "" or photo is None:
         st.warning("すべて入力してください")
     else:
-        save_name = f"{photo_name}_{poster}_{photo.name}"
-        image_path = os.path.join(IMAGE_DIR, save_name)
+        filename = f"{int(time.time())}_{photo.name}"
+        path = os.path.join(IMAGE_DIR, filename)
 
         image = Image.open(photo)
-        image.save(image_path)
+        image.save(path)
 
         df = pd.read_csv(PHOTO_FILE)
-        df = pd.concat(
-            [df, pd.DataFrame([[poster, photo_name, image_path]],
-            columns=["投稿者", "写真名", "画像ファイル"])],
-            ignore_index=True
-        )
+        df.loc[len(df)] = [poster, photo_name, path]
         df.to_csv(PHOTO_FILE, index=False)
 
         st.success("写真を投稿しました！")
@@ -103,38 +113,25 @@ if len(photo_df) == 0:
 else:
     voter = st.text_input("あなたの名前（投票者）")
 
-    st.subheader("📷 投稿された写真一覧")
-
     for _, row in photo_df.iterrows():
-        img = row["画像ファイル"]
-        if isinstance(img, str) and os.path.exists(img):
-            st.image(img, width=200)
-        else:
-            st.write("（画像なし）")
-
-        st.write(f"写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
+        if os.path.exists(row["画像ファイル"]):
+            st.image(row["画像ファイル"], width=200)
+        st.write(f"📷 {row['写真名']} ／ 投稿者：{row['投稿者']}")
         st.markdown("---")
 
-    selected = st.radio(
-        "どの写真（商品）を買いたいですか？",
+    choice = st.radio(
+        "どれを買いたいですか？",
         photo_df["写真名"].tolist(),
         index=None
     )
 
     if st.button("投票する"):
-        if voter == "":
-            st.warning("名前を入力してください")
-        elif selected is None:
-            st.warning("写真を選択してください")
+        if voter == "" or choice is None:
+            st.warning("名前と選択をしてください")
         else:
             vote_df = pd.read_csv(VOTE_FILE)
-            vote_df = pd.concat(
-                [vote_df, pd.DataFrame([[voter, selected]],
-                columns=["投票者", "写真名"])],
-                ignore_index=True
-            )
+            vote_df.loc[len(vote_df)] = [voter, choice]
             vote_df.to_csv(VOTE_FILE, index=False)
-
             st.success("投票しました！")
             st.rerun()
 
@@ -148,4 +145,26 @@ vote_df = pd.read_csv(VOTE_FILE)
 if len(vote_df) == 0:
     st.write("まだ投票がありません")
 else:
-    result
+    result = vote_df["写真名"].value_counts().reset_index()
+    result.columns = ["写真名", "投票数"]
+    result = result.merge(photo_df, on="写真名", how="left")
+
+    for _, row in result.iterrows():
+        if os.path.exists(row["画像ファイル"]):
+            st.image(row["画像ファイル"], width=200)
+        st.write(f"🏆 {row['写真名']} ｜ {row['投票数']} 票")
+        st.markdown("---")
+
+# =====================
+# ④ 完全リセット
+# =====================
+st.header("④ 完全リセット")
+
+if st.button("⚠ すべて初期化する"):
+    shutil.rmtree(IMAGE_DIR)
+    os.makedirs(IMAGE_DIR)
+    pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
+    pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
+    st.success("完全に初期化しました")
+    st.rerun()
+
