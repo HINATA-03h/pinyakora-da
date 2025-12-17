@@ -27,7 +27,7 @@ if not os.path.exists(VOTE_FILE):
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
 # =====================
-# 背景画像（Base64）
+# 背景画像
 # =====================
 def get_base64_of_image(image_file):
     with open(image_file, "rb") as f:
@@ -41,29 +41,19 @@ if os.path.exists(BACKGROUND_IMAGE):
         .stApp {{
             background-image: url("data:image/png;base64,{bg}");
             background-size: cover;
-            background-position: center;
         }}
         .block-container {{
             background-color: rgba(255,255,255,0.97);
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 16px;
         }}
-        h1, h2, h3, p, label, span, div {{
-            color: #000 !important;
-        }}
-        input, textarea {{
-            background-color: #fff !important;
-            color: #000 !important;
-        }}
-        section[data-testid="stFileUploader"] * {{
-            color: #000 !important;
-            font-weight: 600;
+        * {{
+            color: black !important;
         }}
         button {{
             background-color: #1f77b4 !important;
             color: white !important;
             font-weight: bold;
-            border-radius: 10px;
         }}
         </style>
         """,
@@ -85,26 +75,18 @@ photo_name = st.text_input("写真（商品の）名前")
 photo = st.file_uploader("写真をアップロード", type=["png", "jpg", "jpeg"])
 
 if st.button("写真を投稿"):
-    if poster == "" or photo_name == "" or photo is None:
-        st.warning("すべて入力してください")
-    else:
-        save_name = f"{photo_name}_{poster}_{photo.name}"
-        image_path = os.path.join(IMAGE_DIR, save_name)
-
-        image = Image.open(photo)
-        image.save(image_path)
+    if poster and photo_name and photo:
+        path = os.path.join(IMAGE_DIR, f"{photo_name}_{poster}_{photo.name}")
+        Image.open(photo).save(path)
 
         df = pd.read_csv(PHOTO_FILE)
-        df = pd.concat(
-            [df, pd.DataFrame([[poster, photo_name, image_path]],
-             columns=["投稿者", "写真名", "画像ファイル"])],
-            ignore_index=True
-        )
+        df.loc[len(df)] = [poster, photo_name, path]
         df.to_csv(PHOTO_FILE, index=False)
 
-        st.success("写真を投稿しました！")
-        st.image(image, width=250)
-        st.experimental_rerun()
+        st.success("投稿完了！")
+        st.rerun()
+    else:
+        st.warning("すべて入力してください")
 
 # =====================
 # ② 投票
@@ -113,89 +95,72 @@ st.header("② 投票する")
 
 photo_df = pd.read_csv(PHOTO_FILE)
 
-if len(photo_df) == 0:
-    st.info("写真が投稿されると投票できます")
-else:
+if len(photo_df) > 0:
     voter = st.text_input("あなたの名前（投票者）")
 
-    for _, row in photo_df.iterrows():
-        if os.path.exists(row["画像ファイル"]):
-            st.image(row["画像ファイル"], width=220)
-        st.write(f"写真名：{row['写真名']} ／ 投稿者：{row['投稿者']}")
+    for _, r in photo_df.iterrows():
+        st.image(r["画像ファイル"], width=200)
+        st.write(f"{r['写真名']}（投稿者：{r['投稿者']}）")
         st.markdown("---")
 
     choice = st.radio("どれを買いたいですか？", photo_df["写真名"].tolist())
 
     if st.button("投票する"):
-        if voter == "":
-            st.warning("名前を入力してください")
-        else:
+        if voter:
             vote_df = pd.read_csv(VOTE_FILE)
-            vote_df = pd.concat(
-                [vote_df, pd.DataFrame([[voter, choice]],
-                 columns=["投票者", "写真名"])],
-                ignore_index=True
-            )
+            vote_df.loc[len(vote_df)] = [voter, choice]
             vote_df.to_csv(VOTE_FILE, index=False)
-            st.success("投票しました！")
-            st.experimental_rerun()
+            st.success("投票完了！")
+            st.rerun()
+        else:
+            st.warning("名前を入力してください")
+else:
+    st.info("写真が投稿されると投票できます")
 
 # =====================
-# ③ 投票結果（動き付き TOP3）
+# ③ 投票結果（動き付き）
 # =====================
 st.header("③ 投票結果発表 🎉")
 
-if "result_step" not in st.session_state:
-    st.session_state.result_step = 0
+if "step" not in st.session_state:
+    st.session_state.step = 0
 
 vote_df = pd.read_csv(VOTE_FILE)
 
-if len(vote_df) == 0:
-    st.info("まだ投票がありません")
-else:
+if len(vote_df) > 0:
     result = vote_df["写真名"].value_counts().reset_index()
     result.columns = ["写真名", "投票数"]
     result = result.merge(photo_df, on="写真名", how="left")
-
-    top3 = result.sort_values("投票数", ascending=False).head(3).reset_index(drop=True)
+    top3 = result.head(3)
 
     if st.button("📢 次の順位を発表"):
-        if st.session_state.result_step < len(top3):
-            st.session_state.result_step += 1
-        st.experimental_rerun()
+        st.session_state.step += 1
+        st.rerun()
 
-    st.markdown("---")
-
-    for i in range(st.session_state.result_step):
-        row = top3.iloc[i]
+    for i in range(min(st.session_state.step, len(top3))):
+        r = top3.iloc[i]
         st.subheader(f"🏆 第{i+1}位")
-
-        if isinstance(row["画像ファイル"], str) and os.path.exists(row["画像ファイル"]):
-            st.image(row["画像ファイル"], width=260)
-
-        st.write(
-            f"📷 写真名：{row['写真名']}  \n"
-            f"👤 投稿者：{row['投稿者']}  \n"
-            f"🗳 投票数：{row['投票数']}"
-        )
+        st.image(r["画像ファイル"], width=250)
+        st.write(f"{r['写真名']}｜投票数：{r['投票数']}")
         st.markdown("---")
 
-    if st.session_state.result_step >= 3:
-        st.success("🎊 すべての順位を発表しました！")
+    if st.session_state.step >= 3:
         st.balloons()
+else:
+    st.info("まだ投票がありません")
 
 # =====================
 # ④ 完全リセット
 # =====================
 st.header("④ 管理者用リセット")
 
-if st.button("⚠ 写真・投票をすべてリセット"):
+if st.button("⚠ すべてリセット"):
     pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
 
     for f in os.listdir(IMAGE_DIR):
         os.remove(os.path.join(IMAGE_DIR, f))
 
-    st.session_state.result_step = 0
-    st.success("すべてリセットしました")
-    st.experimental_rerun()
+    st.session_state.step = 0
+    st.success("リセット完了")
+    st.rerun()
