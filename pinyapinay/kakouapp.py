@@ -18,7 +18,7 @@ BACKGROUND_IMAGE = os.path.join(BASE_DIR, "Background.png")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # =====================
-# CSV 初期化（存在しない時だけ）
+# CSV 初期化
 # =====================
 if not os.path.exists(PHOTO_FILE):
     pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
@@ -73,7 +73,7 @@ if os.path.exists(BACKGROUND_IMAGE):
 # =====================
 # タイトル
 # =====================
-st.title("製品販売シミュレーター(≧▽≦)")
+st.title("📸 写真投稿＆投票アプリ")
 
 # =====================
 # ① 写真投稿
@@ -102,9 +102,9 @@ if st.button("写真を投稿"):
         )
         df.to_csv(PHOTO_FILE, index=False)
 
-        st.success("写真を投稿しました")
+        st.success("写真を投稿しました！")
         st.image(image, width=250)
-        st.rerun()
+        st.experimental_rerun()
 
 # =====================
 # ② 投票
@@ -137,53 +137,55 @@ else:
                 ignore_index=True
             )
             vote_df.to_csv(VOTE_FILE, index=False)
-            st.success("投票しました")
-            st.rerun()
+            st.success("投票しました！")
+            st.experimental_rerun()
 
 # =====================
-# ③ 投票結果
+# ③ 投票結果（動き付き TOP3）
 # =====================
-# =====================
-# ③ 投票結果（TOP3）
-# =====================
-st.header("③ 投票結果（TOP3）")
+st.header("③ 投票結果発表 🎉")
+
+if "result_step" not in st.session_state:
+    st.session_state.result_step = 0
 
 vote_df = pd.read_csv(VOTE_FILE)
 
 if len(vote_df) == 0:
-    st.write("まだ投票がありません")
+    st.info("まだ投票がありません")
 else:
-    # 投票数を集計
     result = vote_df["写真名"].value_counts().reset_index()
     result.columns = ["写真名", "投票数"]
-
-    # 写真情報と結合
-    photo_df = pd.read_csv(PHOTO_FILE)
     result = result.merge(photo_df, on="写真名", how="left")
 
-    # 上位3位まで取得（多い順）
-    top3 = result.sort_values("投票数", ascending=False).head(3)
+    top3 = result.sort_values("投票数", ascending=False).head(3).reset_index(drop=True)
 
-    # 表示は「3位 → 2位 → 1位」
-    rank = len(top3)
+    if st.button("📢 次の順位を発表"):
+        if st.session_state.result_step < len(top3):
+            st.session_state.result_step += 1
+        st.experimental_rerun()
 
-    for _, row in top3[::-1].iterrows():
-        st.subheader(f"🏅 第{rank}位")
+    st.markdown("---")
 
-        if os.path.exists(row["画像ファイル"]):
-            st.image(row["画像ファイル"], width=250)
+    for i in range(st.session_state.result_step):
+        row = top3.iloc[i]
+        st.subheader(f"🏆 第{i+1}位")
+
+        if isinstance(row["画像ファイル"], str) and os.path.exists(row["画像ファイル"]):
+            st.image(row["画像ファイル"], width=260)
 
         st.write(
             f"📷 写真名：{row['写真名']}  \n"
             f"👤 投稿者：{row['投稿者']}  \n"
             f"🗳 投票数：{row['投票数']}"
         )
-
         st.markdown("---")
-        rank -= 1
+
+    if st.session_state.result_step >= 3:
+        st.success("🎊 すべての順位を発表しました！")
+        st.balloons()
 
 # =====================
-# ④ 完全リセット（管理用）
+# ④ 完全リセット
 # =====================
 st.header("④ 管理者用リセット")
 
@@ -194,5 +196,6 @@ if st.button("⚠ 写真・投票をすべてリセット"):
     for f in os.listdir(IMAGE_DIR):
         os.remove(os.path.join(IMAGE_DIR, f))
 
+    st.session_state.result_step = 0
     st.success("すべてリセットしました")
-    st.rerun()
+    st.experimental_rerun()
