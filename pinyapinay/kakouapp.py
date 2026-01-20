@@ -13,6 +13,7 @@ st.set_page_config(page_title="写真投稿＆投票アプリ", layout="centered
 BASE_DIR = os.path.dirname(__file__)
 PHOTO_FILE = os.path.join(BASE_DIR, "photos.csv")
 VOTE_FILE = os.path.join(BASE_DIR, "votes.csv")
+COMMENT_FILE = os.path.join(BASE_DIR, "comments.csv")
 IMAGE_DIR = os.path.join(BASE_DIR, "images")
 BACKGROUND_IMAGE = os.path.join(BASE_DIR, "Background.png")
 
@@ -26,6 +27,9 @@ if not os.path.exists(PHOTO_FILE):
 
 if not os.path.exists(VOTE_FILE):
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
+
+if not os.path.exists(COMMENT_FILE):
+    pd.DataFrame(columns=["写真名", "コメント者", "コメント"]).to_csv(COMMENT_FILE, index=False)
 
 # =====================
 # 背景画像
@@ -47,23 +51,6 @@ if os.path.exists(BACKGROUND_IMAGE):
             background-color: rgba(255,255,255,0.96);
             padding: 2rem;
             border-radius: 16px;
-        }}
-        html, body, h1, h2, h3, p, label {{
-            color: black !important;
-        }}
-        input, textarea {{
-            background-color: white !important;
-            color: black !important;
-        }}
-        section[data-testid="stFileUploader"] * {{
-            color: black !important;
-            font-weight: 600;
-        }}
-        button {{
-            background-color: #1f77b4 !important;
-            color: white !important;
-            font-weight: bold;
-            border-radius: 8px;
         }}
         </style>
         """,
@@ -106,9 +93,9 @@ if st.button("投稿"):
         st.rerun()
 
 # =====================
-# ② 投票（拡大表示あり）
+# ② 投票（コメント付き）
 # =====================
-st.header("② 投票する")
+st.header("② 投票する（コメント可）")
 
 photo_df = pd.read_csv(PHOTO_FILE)
 
@@ -121,25 +108,32 @@ else:
         st.image(row["画像ファイル"], width=220)
         st.write(f"📷 {row['写真名']}（投稿者：{row['投稿者']}）")
 
-        if st.button("🔍 写真を拡大表示", key=f"zoom_post_{i}"):
+        if st.button("🔍 写真を拡大表示", key=f"zoom_{i}"):
             st.session_state.zoom_image = row["画像ファイル"]
 
         st.markdown("---")
 
     choice = st.radio("どれを買いたいですか？", photo_df["写真名"].tolist())
+    comment = st.text_area("この作品へのコメント（任意）")
 
-    if st.button("投票"):
+    if st.button("投票する"):
         if voter == "":
             st.warning("名前を入力してください")
         else:
             vote_df = pd.read_csv(VOTE_FILE)
             vote_df.loc[len(vote_df)] = [voter, choice]
             vote_df.to_csv(VOTE_FILE, index=False)
-            st.success("投票しました")
+
+            if comment.strip() != "":
+                comment_df = pd.read_csv(COMMENT_FILE)
+                comment_df.loc[len(comment_df)] = [choice, voter, comment]
+                comment_df.to_csv(COMMENT_FILE, index=False)
+
+            st.success("投票＆コメントを送信しました")
             st.rerun()
 
 # =====================
-# ③ 投票結果（写真のみ・拡大なし）
+# ③ 投票結果
 # =====================
 st.header("③ 投票結果")
 
@@ -149,36 +143,53 @@ if not vote_df.empty:
     if st.button("🏆 投票結果を見る"):
         result = vote_df["写真名"].value_counts().reset_index()
         result.columns = ["写真名", "投票数"]
-        result = result.head(3)
 
         merged = result.merge(photo_df, on="写真名", how="left")
 
         for rank, row in enumerate(merged.itertuples(), start=1):
             st.markdown(f"## 🏅 第{rank}位：{row.写真名}（{row.投票数}票）")
             st.image(row.画像ファイル, width=320)
-            time.sleep(1.2)
+            time.sleep(1)
 
         st.balloons()
 
 # =====================
-# 拡大表示エリア（投稿・投票時のみ）
+# ④ 自分の作品へのコメントを見る
 # =====================
-if st.session_state.zoom_image:
-    st.markdown("## 写真を拡大表示")
-    st.image(st.session_state.zoom_image, use_container_width=True)
+st.header("④ 自分の投稿へのコメントを見る")
 
-    if st.button("❌ 閉じる"):
-        st.session_state.zoom_image = None
-        st.rerun()
+my_name = st.text_input("投稿時の名前を入力してください")
+
+if my_name:
+    photo_df = pd.read_csv(PHOTO_FILE)
+    comment_df = pd.read_csv(COMMENT_FILE)
+
+    my_photos = photo_df[photo_df["投稿者"] == my_name]
+
+    if my_photos.empty:
+        st.info("あなたの投稿が見つかりません")
+    else:
+        for _, p in my_photos.iterrows():
+            st.subheader(f"📷 {p['写真名']}")
+            st.image(p["画像ファイル"], width=260)
+
+            comments = comment_df[comment_df["写真名"] == p["写真名"]]
+
+            if comments.empty:
+                st.write("コメントはまだありません")
+            else:
+                for _, c in comments.iterrows():
+                    st.write(f"💬 {c['コメント者']}：{c['コメント']}")
 
 # =====================
-# ④ リセット
+# ⑤ 管理者用リセット
 # =====================
-st.header("④ 管理者用リセット")
+st.header("⑤ 管理者用リセット")
 
-if st.button("⚠ 写真・投票をすべてリセット"):
+if st.button("⚠ 写真・投票・コメントをすべてリセット"):
     pd.DataFrame(columns=["投稿者", "写真名", "画像ファイル"]).to_csv(PHOTO_FILE, index=False)
     pd.DataFrame(columns=["投票者", "写真名"]).to_csv(VOTE_FILE, index=False)
+    pd.DataFrame(columns=["写真名", "コメント者", "コメント"]).to_csv(COMMENT_FILE, index=False)
 
     for f in os.listdir(IMAGE_DIR):
         os.remove(os.path.join(IMAGE_DIR, f))
