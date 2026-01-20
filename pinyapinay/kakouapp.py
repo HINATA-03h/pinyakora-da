@@ -52,6 +52,20 @@ if os.path.exists(BACKGROUND_IMAGE):
             padding: 2rem;
             border-radius: 16px;
         }}
+        html, body, h1, h2, h3, p, label {{
+            color: black !important;
+        }}
+        div[data-baseweb="input"] input,
+        div[data-baseweb="textarea"] textarea {{
+            background-color: white !important;
+            color: black !important;
+        }}
+        button {{
+            background-color: #1f77b4 !important;
+            color: white !important;
+            font-weight: bold;
+            border-radius: 8px;
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -93,9 +107,9 @@ if st.button("投稿"):
         st.rerun()
 
 # =====================
-# ② 投票（コメント付き）
+# ② 投票（コメント追加）
 # =====================
-st.header("② 投票する（コメント可）")
+st.header("② 投票する")
 
 photo_df = pd.read_csv(PHOTO_FILE)
 
@@ -108,7 +122,7 @@ else:
         st.image(row["画像ファイル"], width=220)
         st.write(f"📷 {row['写真名']}（投稿者：{row['投稿者']}）")
 
-        if st.button("🔍 写真を拡大表示", key=f"zoom_{i}"):
+        if st.button("🔍 写真を拡大表示", key=f"zoom_post_{i}"):
             st.session_state.zoom_image = row["画像ファイル"]
 
         st.markdown("---")
@@ -116,7 +130,7 @@ else:
     choice = st.radio("どれを買いたいですか？", photo_df["写真名"].tolist())
     comment = st.text_area("この作品へのコメント（任意）")
 
-    if st.button("投票する"):
+    if st.button("投票"):
         if voter == "":
             st.warning("名前を入力してください")
         else:
@@ -129,7 +143,7 @@ else:
                 comment_df.loc[len(comment_df)] = [choice, voter, comment]
                 comment_df.to_csv(COMMENT_FILE, index=False)
 
-            st.success("投票＆コメントを送信しました")
+            st.success("投票しました")
             st.rerun()
 
 # =====================
@@ -143,6 +157,7 @@ if not vote_df.empty:
     if st.button("🏆 投票結果を見る"):
         result = vote_df["写真名"].value_counts().reset_index()
         result.columns = ["写真名", "投票数"]
+        result = result.head(3)
 
         merged = result.merge(photo_df, on="写真名", how="left")
 
@@ -154,7 +169,18 @@ if not vote_df.empty:
         st.balloons()
 
 # =====================
-# ④ 自分の作品へのコメントを見る
+# 拡大表示
+# =====================
+if st.session_state.zoom_image:
+    st.markdown("## 写真を拡大表示")
+    st.image(st.session_state.zoom_image, use_container_width=True)
+
+    if st.button("❌ 閉じる"):
+        st.session_state.zoom_image = None
+        st.rerun()
+
+# =====================
+# ④ 自分の投稿へのコメントを見る
 # =====================
 st.header("④ 自分の投稿へのコメントを見る")
 
