@@ -7,16 +7,20 @@
 <script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
 
 <title>CodeCraft HTML/CSS</title>
-<script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
+
 
 <style>
+html {
+  height: 100%;
+}
+
 body{
   margin:0;
   font-family:sans-serif;
-  height:100vh;
+  height:100%;
   display:flex;
-
   flex-direction:column;
+  overflow:hidden;
 }
 
 /* ヘッダー全体のデザイン */
@@ -74,12 +78,14 @@ body{
   gap:8px;
   padding:8px;
   min-height:0;
+  height:100%;
 }
 
 #blocklyDiv{
   flex:1;
   border:1px solid #ccc;
   min-width:300px;
+  height:100%;
 }
 
 .right{
@@ -99,6 +105,7 @@ textarea{
 iframe{
   flex:1;
   border:1px solid #ccc;
+  height:100%;
 }
 
 
@@ -935,6 +942,14 @@ const workspace = Blockly.inject('blocklyDiv', {
   </category>
 </xml>`,
   trashcan: true
+});
+
+window.addEventListener("load", () => {
+  Blockly.svgResize(workspace);
+});
+
+window.addEventListener("resize", () => {
+  Blockly.svgResize(workspace);
 });
 
 /* ========= コード生成 ========= */
