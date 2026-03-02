@@ -943,19 +943,15 @@ const workspace = Blockly.inject('blocklyDiv', {
   trashcan: true
 });
 
+
+// ⭐ 初回サイズ調整
 Blockly.svgResize(workspace);
 
+// ⭐ 画面サイズ変更時に自動調整
 window.addEventListener("resize", () => {
   Blockly.svgResize(workspace);
 });
 
-window.addEventListener("load", () => {
-  Blockly.svgResize(workspace);
-});
-
-window.addEventListener("resize", () => {
-  Blockly.svgResize(workspace);
-});
 
 /* ========= コード生成 ========= */
 
