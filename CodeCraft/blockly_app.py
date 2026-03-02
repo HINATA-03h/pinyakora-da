@@ -1,13 +1,11 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import os
 
-st.set_page_config(layout="wide")
+st.write("現在のフォルダ:", os.getcwd())
+st.write("中身:", os.listdir())
 
-st.title("CodeCraft HTML/CSS")
+with open("index.html", encoding="utf-8") as f:
+    html = f.read()
 
-# index.html を読み込む
-with open("index.html", "r", encoding="utf-8") as f:
-    html_code = f.read()
-
-# HTMLを表示
-components.html(html_code, height=900, scrolling=True)
+components.html(html, height=800, scrolling=True)
