@@ -1,12 +1,13 @@
-import os
-from flask import Flask, render_template
+import streamlit as st
+import streamlit.components.v1 as components
 
-app = Flask(__name__)
+st.set_page_config(layout="wide")
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+st.title("CodeCraft HTML/CSS")
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+# index.html を読み込む
+with open("index.html", "r", encoding="utf-8") as f:
+    html_code = f.read()
+
+# HTMLを表示
+components.html(html_code, height=900, scrolling=True)
