@@ -78,7 +78,6 @@ body{
   gap:8px;
   padding:8px;
   min-height:0;
-  height:100%;
 }
 
 #blocklyDiv{
@@ -942,6 +941,12 @@ const workspace = Blockly.inject('blocklyDiv', {
   </category>
 </xml>`,
   trashcan: true
+});
+
+Blockly.svgResize(workspace);
+
+window.addEventListener("resize", () => {
+  Blockly.svgResize(workspace);
 });
 
 window.addEventListener("load", () => {
