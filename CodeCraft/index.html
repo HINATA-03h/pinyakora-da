@@ -250,6 +250,26 @@ iframe{
   opacity: 0.95 !important;
 }
 
+/* 左を閉じた状態 */
+.container.collapsed #blocklyDiv {
+  display: none;
+}
+
+/* 右側をフルに広げる */
+.container.collapsed .right {
+  flex: 1 1 100%;
+}
+
+/* ボタンちょっといい感じに */
+#toggleBtn{
+  background:#4A90E2;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
 </style>
 </head>
 
@@ -257,6 +277,7 @@ iframe{
 <header class="app-header">
   <h1 class="logo">CodeCraft <span>HTML/CSS</span></h1>
   <button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
+  <button id="toggleBtn">☰</button>
 </header>
 
 
@@ -1315,6 +1336,22 @@ function createParticles() {
         }, 20);
     }
 }
+
+
+const toggleBtn = document.getElementById("toggleBtn");
+const container = document.querySelector(".container");
+
+toggleBtn.addEventListener("click", () => {
+  container.classList.toggle("collapsed");
+
+  // Blocklyのサイズを再計算（超重要）
+  setTimeout(() => {
+    Blockly.svgResize(workspace);
+  }, 300);
+});
+
+toggleBtn.textContent = 
+  container.classList.contains("collapsed") ? "▶" : "☰";
 
 // ブロックが動いたら update 関数を呼ぶという命令
 workspace.addChangeListener(update);
