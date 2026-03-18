@@ -307,7 +307,7 @@ Blockly.Blocks['html_head'] = {
     this.appendDummyInput().appendField("＜head＞");
     this.appendStatementInput("CONTENT");
     this.appendDummyInput().appendField("＜/head＞");
-    this.setColour(200);
+    this.setColour(230);
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip("ページの情報を入れるタグだよ。タイトルやスタイルシートなどをここに書くんだ！");
@@ -319,7 +319,7 @@ Blockly.Blocks['html_body'] = {
     this.appendDummyInput().appendField("＜body＞");
     this.appendStatementInput("CONTENT");
     this.appendDummyInput().appendField("＜/body＞");
-    this.setColour(200);
+    this.setColour(230);
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip("ブラウザの画面に表示したい内容を入れるタグだよ");
@@ -702,7 +702,7 @@ Blockly.Blocks["html_style"] = {
       .appendField("＜/style＞");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(160);
+    this.setColour(180);
     this.setTooltip("CSSスタイルを直接書くことができるよ。ページ全体のデザインを調整するのに便利だよ！");
   }
 };
@@ -836,7 +836,7 @@ Blockly.Blocks['html_br'] = {
       .appendField('＜br＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(120);
+    this.setColour(290);
     this.setTooltip("改行を挿入するよ。文章の途中で改行したいときに使うんだ！");
   }
 };
@@ -846,7 +846,7 @@ Blockly.Blocks['html_hr'] = {
       .appendField('＜hr＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(120);
+    this.setColour(290);
     this.setTooltip("水平線を挿入するよ。内容の区切りを視覚的に示すのに使うんだ！");
   }
 };
@@ -856,7 +856,7 @@ Blockly.Blocks['html_meta'] = {
       .appendField('＜meta charset="UTF-8"＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(160);
+    this.setColour(290);
     this.setTooltip("文字エンコーディングを指定するよ。通常はUTF-8を使うんだ！");
   }
 };
@@ -872,7 +872,7 @@ Blockly.Blocks["html_input"] = {
       .appendField('">');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(60);
+    this.setColour(290);
     this.setTooltip("入力フィールドを作るよ。ユーザーがテキストを入力できるようにするんだ！");
   }
 };
