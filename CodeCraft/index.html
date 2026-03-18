@@ -250,91 +250,6 @@ iframe{
   opacity: 0.95 !important;
 }
 
-/* ヘッダー全体のデザイン */
-.app-header {
-  display: flex;
-  justify-content: space-between; /* ロゴを左、ボタンを右に配置 */
-  align-items: center;
-  padding: 12px 20px;
-  background-color: #2c3e50; /* 落ち着いたダークネイビー */
-  color: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-/* アプリ名のデザイン */
-.logo {
-  margin: 0;
-  font-size: 22px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 0.5px;
-}
-
-.logo span {
-  background: #4A90E2; /* HTMLタグらしい青色 */
-  color: white;
-  padding: 2px 10px;
-  border-radius: 6px;
-  margin-left: 4px;
-  font-size: 0.85em;
-  font-weight: bold;
-}
-
-/* 「？ 使い方」ボタンのデザイン */
-#helpBtn {
-  position: static; /* 浮いている状態を解除 */
-  background: #f39c12; /* アクセントのオレンジ */
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 25px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-#helpBtn:hover {
-  background: #e67e22;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-
-#blocklyDiv {
-    position: relative; /* ボタンを中に浮かせるため */
-}
-
-/* 収納ボタンのデザイン */
-#toolbox-toggle {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 70; /* Blocklyより前面 */
-    background: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    padding: 15px 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#toolbox-toggle:hover {
-    background: #4A90E2;
-}
-
-/* バーが隠れている時のクラス */
-.toolbox-hidden .blocklyToolboxDiv {
-    display: none !important;
-}
-
-/* 隠れた時にBlockly本体を左端まで広げる設定 */
-.toolbox-hidden .blocklyMainBackground {
-    transform: translateX(0);
-}
-
-
 </style>
 </head>
 
@@ -370,9 +285,7 @@ iframe{
 </div>
 
 
-<div id="blocklyDiv">
-    <button id="toolbox-toggle" onclick="toggleToolbox()">◀</button>
-</div>
+
 
 
 <script>
@@ -1402,41 +1315,6 @@ function createParticles() {
         }, 20);
     }
 }
-
-
-
-
-function toggleToolbox() {
-    const blocklyDiv = document.getElementById('blocklyDiv');
-    const toggleBtn = document.getElementById('toolbox-toggle');
-    
-    // クラスを付け外しする
-    blocklyDiv.classList.toggle('toolbox-hidden');
-    
-    // ボタンの向きと位置を調整
-    if (blocklyDiv.classList.contains('toolbox-hidden')) {
-        toggleBtn.innerText = "▶"; // 閉じてる時は「出す」合図
-        toggleBtn.style.left = "0";
-    } else {
-        toggleBtn.innerText = "◀"; // 開いてる時は「隠す」合図
-        // バーの横幅分、ボタンを右にずらす（Blocklyの標準幅は約120-150px）
-        const toolbox = document.querySelector('.blocklyToolboxDiv');
-        if (toolbox) {
-            toggleBtn.style.left = toolbox.offsetWidth + "px";
-        }
-    }
-    
-    // Blocklyの画面サイズを再計算させる（これ重要！）
-    Blockly.svgResize(workspace);
-}
-
-// 起動時にボタンの位置を初期化する
-setTimeout(() => {
-    const toolbox = document.querySelector('.blocklyToolboxDiv');
-    if (toolbox) {
-        document.getElementById('toolbox-toggle').style.left = toolbox.offsetWidth + "px";
-    }
-}, 500);
 
 // ブロックが動いたら update 関数を呼ぶという命令
 workspace.addChangeListener(update);
