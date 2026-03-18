@@ -276,6 +276,17 @@ iframe{
   cursor: pointer;
 }
 #toggleBtn {
+   position: absolute;
+  top: 10px;
+  left: 10px; /* ← 左に配置 */
+  z-index: 1000;
+
+  background: #4A90E2;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
   z-index: 200000; /* overlayより上に */
 }
 .toolbox-hidden .blocklyToolboxDiv {
@@ -289,10 +300,12 @@ iframe{
 <header class="app-header">
   <h1 class="logo">CodeCraft <span>HTML/CSS</span></h1>
   <button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
-  <button id="toggleBtn">☰</button>
 </header>
 
-
+<div id="blocklyArea">
+  <button id="toggleBtn">≡</button>
+  <div id="blocklyDiv"></div>
+</div>
 
 <div class="container">
   <div id="blocklyDiv"></div>
@@ -1350,16 +1363,18 @@ function createParticles() {
 }
 
 
-const toggleBtn = document.getElementById("toggleBtn");
+function updateButtonPosition() {
+  const toolbox = document.querySelector('.blocklyToolboxDiv');
+  const btn = document.getElementById('toggleBtn');
 
-toggleBtn.addEventListener("click", () => {
-  document.body.classList.toggle("toolbox-hidden");
+  if (toolbox && btn) {
+    const width = toolbox.offsetWidth;
+    btn.style.left = (width + 10) + "px";
+  }
+}
 
-  setTimeout(() => {
-    Blockly.svgResize(workspace);
-  }, 200);
-});
-
+setTimeout(updateButtonPosition, 500);
+window.addEventListener("resize", updateButtonPosition);
 
 </script>
 </body>
