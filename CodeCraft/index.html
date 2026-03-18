@@ -1344,17 +1344,15 @@ const container = document.querySelector(".container");
 toggleBtn.addEventListener("click", () => {
   container.classList.toggle("collapsed");
 
-  // Blocklyのサイズを再計算（超重要）
+  // ボタンの見た目切り替え
+  toggleBtn.textContent =
+    container.classList.contains("collapsed") ? "▶" : "☰";
+
+  // Blocklyのサイズを再計算
   setTimeout(() => {
     Blockly.svgResize(workspace);
   }, 300);
 });
-
-toggleBtn.textContent = 
-  container.classList.contains("collapsed") ? "▶" : "☰";
-
-// ブロックが動いたら update 関数を呼ぶという命令
-workspace.addChangeListener(update);
 
 
 </script>
