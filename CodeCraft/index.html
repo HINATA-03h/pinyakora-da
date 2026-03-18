@@ -303,6 +303,21 @@ iframe{
   display: none !important;
 }
 
+
+#fullscreenBtn {
+  position: fixed;
+  top: 10px;
+  right: 120px; /* 使い方ボタンの左に置く */
+  z-index: 1000;
+
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 </style>
 </head>
 
@@ -313,6 +328,8 @@ iframe{
 </header>
 
 <button id="toggleBtn">収納</button>
+
+<button id="fullscreenBtn">⛶</button>
 
 <div class="container">
   <div id="blocklyDiv"></div>
@@ -1380,6 +1397,16 @@ toggleBtn.addEventListener("click", () => {
   }, 200);
 });
 
+
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+fullscreenBtn.addEventListener("click", () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
 
 </script>
 </body>
