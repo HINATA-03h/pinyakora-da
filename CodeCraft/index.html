@@ -278,6 +278,9 @@ iframe{
 #toggleBtn {
   z-index: 200000; /* overlayより上に */
 }
+.toolbox-hidden .blocklyToolboxDiv {
+  display: none !important;
+}
 
 </style>
 </head>
@@ -1348,19 +1351,13 @@ function createParticles() {
 
 
 const toggleBtn = document.getElementById("toggleBtn");
-const container = document.querySelector(".container");
 
 toggleBtn.addEventListener("click", () => {
-  container.classList.toggle("collapsed");
+  document.body.classList.toggle("toolbox-hidden");
 
-  // ボタンの見た目切り替え
-  toggleBtn.textContent =
-    container.classList.contains("collapsed") ? "▶" : "☰";
-
-  // Blocklyのサイズを再計算
   setTimeout(() => {
     Blockly.svgResize(workspace);
-  }, 300);
+  }, 200);
 });
 
 
