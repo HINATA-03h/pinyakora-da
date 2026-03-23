@@ -288,61 +288,22 @@ iframe{
 #toggleBtn {
   position: absolute;
   top: 50%;
+  left: 170px; /* ←そのまま使う */
   transform: translateY(-50%);
-  
-  width: 34px;
-  height: 70px;
+  transition: left 0.25s ease;
 
-  background: linear-gradient(180deg, #4A90E2, #357ABD);
-  color: white;
+  /* ▼ サイズ */
+  width: 30px;
+  height: 65px;
+
+  /* ▼ 色 */
+  background: #4A90E2;
+  color: #fff;
+
+  /* ▼ 最低限の見た目 */
   border: none;
-  
-  border-radius: 0 14px 14px 0;
-  
-  font-size: 16px;
-  font-weight: bold;
-
+  border-radius: 0 10px 10px 0;
   cursor: pointer;
-
-  box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-  transition: all 0.25s ease;
-}
-
-/* ホバー */
-#toggleBtn:hover {
-  background: linear-gradient(180deg, #5aa0f2, #2f6fc2);
-  box-shadow: 4px 0 12px rgba(0,0,0,0.3);
-  transform: translateY(-50%) scale(1.05);
-}
-
-/* 押したとき */
-#toggleBtn:active {
-  transform: translateY(-50%) scale(0.95);
-}
-
-.blocklyToolboxDiv {
-  border-right: 2px solid #e0e0e0;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-  background: #f8fafc;
-}
-
-#toggleBtn::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  border-radius: 0 14px 14px 0;
-  
-  background: rgba(255,255,255,0.2);
-  opacity: 0;
-  transition: 0.3s;
-}
-
-#toggleBtn:hover::after {
-  opacity: 1;
 }
 
 /* 収納時 */
