@@ -280,20 +280,21 @@ iframe{
 }
 
 #toggleBtn {
-  position: fixed;
-  top: 50%;
-  left: 10px;   /* ←これが重要 */
+  position: fixed !important;   /* ←絶対これ */
+  top: 50% !important;
+  left: 260px !important;       /* ←ここ重要（パレットの右端あたり） */
 
   transform: translateY(-50%);
-  z-index: 9999;
+  z-index: 99999 !important;    /* ←最前面に出す */
 
-  width: 30px;
-  height: 60px;
-  border-radius: 0 10px 10px 0;
+  width: 32px;
+  height: 70px;
 
   background: #4A90E2;
   color: white;
   border: none;
+  border-radius: 0 10px 10px 0;
+
   cursor: pointer;
 }
 
