@@ -300,6 +300,17 @@ iframe{
   cursor: pointer;
 }
 
+/* Blocklyのツールボックス本体をスライド */
+.toolbox-hidden .blocklyToolboxDiv {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+/* ワークスペースも少し広げる */
+.toolbox-hidden #blocklyDiv {
+  margin-left: -200px;
+}
+
 </style>
 </head>
 
@@ -1366,17 +1377,14 @@ function createParticles() {
         }, 20);
     }
 }
+const toggleBtn = document.getElementById("toggleBtn");
 
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("toolbox-hidden");
 
-  if (document.body.classList.contains("toolbox-hidden")) {
-    toggleBtn.style.left = "0px";
-    toggleBtn.textContent = "▶";
-  } else {
-    toggleBtn.style.left = "240px";
-    toggleBtn.textContent = "◀";
-  }
+  // 矢印切り替え
+  toggleBtn.textContent =
+    document.body.classList.contains("toolbox-hidden") ? "▶" : "◀";
 
   setTimeout(() => {
     Blockly.svgResize(workspace);
