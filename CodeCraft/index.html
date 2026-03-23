@@ -280,15 +280,17 @@ iframe{
 }
 
 #toggleBtn {
-  position: fixed !important;   /* ←絶対これ */
-  top: 50% !important;
-  left: 260px !important;       /* ←ここ重要（パレットの右端あたり） */
+  position: absolute;
+  top: 50%;
+
+  /* 👇ここが超重要 */
+  left: 240px;   /* パレット幅に合わせる */
 
   transform: translateY(-50%);
-  z-index: 99999 !important;    /* ←最前面に出す */
+  z-index: 9999;
 
-  width: 32px;
-  height: 70px;
+  width: 30px;
+  height: 60px;
 
   background: #4A90E2;
   color: white;
@@ -297,7 +299,6 @@ iframe{
 
   cursor: pointer;
 }
-
 
 </style>
 </head>
@@ -1369,8 +1370,13 @@ function createParticles() {
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("toolbox-hidden");
 
-  toggleBtn.textContent =
-    document.body.classList.contains("toolbox-hidden") ? "▶" : "◀";
+  if (document.body.classList.contains("toolbox-hidden")) {
+    toggleBtn.style.left = "0px";
+    toggleBtn.textContent = "▶";
+  } else {
+    toggleBtn.style.left = "240px";
+    toggleBtn.textContent = "◀";
+  }
 
   setTimeout(() => {
     Blockly.svgResize(workspace);
