@@ -79,6 +79,8 @@ body{
   padding:8px;
   min-height:0;
   overflow:hidden; 
+  position: relative; /* ←これ追加！！ */
+
 }
 
 #blocklyDiv{
@@ -273,10 +275,6 @@ iframe{
   width: 0;
 }
 
-/* これ追加すると完全に消える */
-.container.toolbox-hidden #blocklyDiv {
-  display: none;
-}
 
 /* Blockly本体 */
 #blocklyDiv {
@@ -284,29 +282,16 @@ iframe{
   height: 100%;
 }
 
-/* ボタン（境界に追従） */
 #toggleBtn {
   position: absolute;
   top: 50%;
-  left: 260px; /* ← blocklyAreaと同じ */
-
+  left: 260px;
   transform: translateY(-50%);
-  z-index: 1000;
-
-  width: 30px;
-  height: 60px;
-
-  background: #4A90E2;
-  color: white;
-  border: none;
-  border-radius: 0 10px 10px 0;
-  cursor: pointer;
-
   transition: left 0.25s ease;
 }
 
-/* 収納時は左へ */
-.toolbox-hidden #toggleBtn {
+/* 収納時 */
+.container.toolbox-hidden #toggleBtn {
   left: 0;
 }
 
