@@ -262,32 +262,31 @@ iframe{
 
 
 
+/* 左エリア全体 */
 #blocklyArea {
-  position: relative;
-  width: 50%;
-  transition: all 0.3s ease;
+  width: 260px;
+  transition: width 0.25s ease;
 }
 
-/* 収納状態 */
+/* 収納 */
 .toolbox-hidden #blocklyArea {
   width: 0;
-  overflow: hidden;
 }
 
-/* 右側を広げる */
-.toolbox-hidden .right {
+/* Blockly本体 */
+#blocklyDiv {
   width: 100%;
+  height: 100%;
 }
 
+/* ボタン（境界に追従） */
 #toggleBtn {
   position: absolute;
   top: 50%;
-
-  /* 👇ここが超重要 */
-  left: 240px;   /* パレット幅に合わせる */
+  left: 260px; /* ← blocklyAreaと同じ */
 
   transform: translateY(-50%);
-  z-index: 9999;
+  z-index: 1000;
 
   width: 30px;
   height: 60px;
@@ -296,19 +295,14 @@ iframe{
   color: white;
   border: none;
   border-radius: 0 10px 10px 0;
-
   cursor: pointer;
+
+  transition: left 0.25s ease;
 }
 
-/* Blocklyのツールボックス本体をスライド */
-.toolbox-hidden .blocklyToolboxDiv {
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-/* ワークスペースも少し広げる */
-.toolbox-hidden #blocklyDiv {
-  margin-left: -200px;
+/* 収納時は左へ */
+.toolbox-hidden #toggleBtn {
+  left: 0;
 }
 
 </style>
@@ -347,7 +341,14 @@ iframe{
 
 
 
-<button id="toggleBtn">◀</button>
+<div class="container">
+  <div id="blocklyArea">
+    <div id="blocklyDiv"></div>
+  </div>
+
+  <button id="toggleBtn">◀</button>
+
+  <div class="right">
 
 
 <script>
@@ -1377,18 +1378,15 @@ function createParticles() {
         }, 20);
     }
 }
-const toggleBtn = document.getElementById("toggleBtn");
-
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("toolbox-hidden");
 
-  // 矢印切り替え
   toggleBtn.textContent =
     document.body.classList.contains("toolbox-hidden") ? "▶" : "◀";
 
   setTimeout(() => {
     Blockly.svgResize(workspace);
-  }, 300);
+  }, 250);
 });
 
 workspace.addChangeListener(update);
