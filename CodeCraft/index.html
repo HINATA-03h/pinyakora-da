@@ -276,9 +276,13 @@ iframe{
   transition: transform 0.3s ease;
 }
 
-/* 通常状態 */
 .blocklyToolboxDiv {
   transition: transform 0.3s ease;
+}
+
+/* 左にスライドして隠す */
+.toolbox-hidden .blocklyToolboxDiv {
+  transform: translateX(-100%);
 }
 
 /* Blockly本体 */
