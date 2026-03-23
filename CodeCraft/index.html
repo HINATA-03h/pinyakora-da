@@ -262,55 +262,40 @@ iframe{
 
 
 
-/* Blockly全体をラップ */
-#blocklyWrapper {
+#blocklyArea {
   position: relative;
   width: 50%;
-  height: 100%;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-/* パレットだけ隠す */
-.toolbox-collapsed .blocklyToolboxDiv {
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
+/* 収納状態 */
+.toolbox-hidden #blocklyArea {
+  width: 0;
+  overflow: hidden;
 }
 
-.blocklyToolboxDiv {
-  transition: transform 0.3s ease;
-}
-
-/* 左にスライドして隠す */
-.toolbox-hidden .blocklyToolboxDiv {
-  transform: translateX(-100%);
-}
-
-/* Blockly本体 */
-#blocklyDiv {
+/* 右側を広げる */
+.toolbox-hidden .right {
   width: 100%;
-  height: 100%;
 }
 
-/* スライドボタン */
-#toolboxToggle {
+/* ボタン（境界に配置） */
+#toggleBtn {
   position: absolute;
   top: 50%;
-  right: -20px;
-  transform: translateY(-50%);
-  
-  width: 40px;
-  height: 80px;
-  border-radius: 0 10px 10px 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+
+  width: 30px;
+  height: 60px;
+  border-radius: 10px;
 
   background: #4A90E2;
   color: white;
   border: none;
   cursor: pointer;
-  z-index: 9999;
-
-  font-size: 20px;
 }
-
 
 
 </style>
@@ -1383,25 +1368,16 @@ function createParticles() {
     }
 }
 
-
-const toggleBtn = document.getElementById("toolboxToggle");
-
 toggleBtn.addEventListener("click", () => {
-  document.body.classList.toggle("toolbox-collapsed");
+  document.body.classList.toggle("toolbox-hidden");
 
-  // 矢印変更
-  if (document.body.classList.contains("toolbox-collapsed")) {
-    toggleBtn.textContent = "▶";
-  } else {
-    toggleBtn.textContent = "◀";
-  }
+  toggleBtn.textContent =
+    document.body.classList.contains("toolbox-hidden") ? "▶" : "◀";
 
-  // Blockly再描画（超重要）
   setTimeout(() => {
     Blockly.svgResize(workspace);
   }, 300);
 });
-
 
 workspace.addChangeListener(update);
 
