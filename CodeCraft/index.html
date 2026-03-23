@@ -288,22 +288,20 @@ iframe{
 #toggleBtn {
   position: absolute;
   top: 50%;
-  left: 170px; /* ←そのまま使う */
+  left: 0; /* ←まずは絶対ここにする */
   transform: translateY(-50%);
   transition: left 0.25s ease;
 
-  /* ▼ サイズ */
   width: 30px;
   height: 65px;
-
-  /* ▼ 色 */
   background: #4A90E2;
   color: #fff;
 
-  /* ▼ 最低限の見た目 */
   border: none;
   border-radius: 0 10px 10px 0;
   cursor: pointer;
+
+  z-index: 9999; /* ←これ超重要（前に出す） */
 }
 
 /* 収納時 */
