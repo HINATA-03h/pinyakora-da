@@ -308,12 +308,18 @@ iframe{
 .container.toolbox-hidden #toggleBtn {
   left: 0;
 }
-
-/* ツールボックス（カテゴリ名）の文字サイズ */
-.blocklyTreeLabel {
-  font-size: 30px !important;
+/* カテゴリ全体（クリック範囲）を広げる */
+.blocklyTreeRow {
+  height: 50px !important;       /* 行の高さ */
+  line-height: 50px !important;  /* 文字を中央に */
+  padding: 0 10px !important;    /* 左右の余白 */
 }
 
+/* 文字 */
+.blocklyTreeLabel {
+  font-size: 30px !important;
+  font-weight: bold;
+}
 </style>
 </head>
 
