@@ -270,9 +270,15 @@ iframe{
   transition: width 0.3s ease;
 }
 
-/* パレットを隠した状態 */
-.toolbox-collapsed #blocklyWrapper {
-  width: 0;
+/* パレットだけ隠す */
+.toolbox-collapsed .blocklyToolboxDiv {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+/* 通常状態 */
+.blocklyToolboxDiv {
+  transition: transform 0.3s ease;
 }
 
 /* Blockly本体 */
