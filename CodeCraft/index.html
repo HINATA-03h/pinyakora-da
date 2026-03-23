@@ -275,11 +275,10 @@ iframe{
   width: 0;
 }
 
-/* ツールボックスだけ隠す */
 .container.toolbox-hidden .blocklyToolboxDiv {
-  display: none;
+  visibility: hidden;
+  width: 0 !important;
 }
-
 /* Blockly本体 */
 #blocklyDiv {
   width: 100%;
@@ -1370,6 +1369,7 @@ function createParticles() {
 }
 
 const container = document.querySelector(".container");
+const toggleBtn = document.getElementById("toggleBtn");
 
 toggleBtn.addEventListener("click", () => {
   container.classList.toggle("toolbox-hidden");
@@ -1377,9 +1377,10 @@ toggleBtn.addEventListener("click", () => {
   toggleBtn.textContent =
     container.classList.contains("toolbox-hidden") ? "▶" : "◀";
 
+  // ⭐ これが超重要！！
   setTimeout(() => {
     Blockly.svgResize(workspace);
-  }, 250);
+  }, 100);
 });
 
 workspace.addChangeListener(update);
