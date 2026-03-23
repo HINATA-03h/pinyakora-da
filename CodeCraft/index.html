@@ -318,13 +318,16 @@ iframe{
 
 <div class="container">
   <div id="blocklyDiv"></div>
+
+ <button id="toggleBtn">◀</button>
+
   <div class="right">
     <div class="toolbar">
         <button onclick="downloadHTML()" class="btn-download">💾 HTMLとして保存</button>
     </div>
     <textarea id="codeArea" readonly></textarea>
     <iframe id="preview"></iframe>
-</div>
+  </div>
 </div>
 
 <div id="tutorialOverlay" class="overlay" style="display:none;">
@@ -341,14 +344,7 @@ iframe{
 
 
 
-<div class="container">
-  <div id="blocklyArea">
-    <div id="blocklyDiv"></div>
-  </div>
 
-  <button id="toggleBtn">◀</button>
-
-  <div class="right">
 
 
 <script>
@@ -1378,6 +1374,8 @@ function createParticles() {
         }, 20);
     }
 }
+
+const toggleBtn = document.getElementById("toggleBtn");
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("toolbox-hidden");
 
