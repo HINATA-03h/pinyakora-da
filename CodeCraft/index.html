@@ -99,6 +99,7 @@ textarea{
 iframe{
   flex:1;
   border:1px solid #ccc;
+  background-color: white; /* プレビュー画面が黒くなるのを防ぐ */
 }
 
 
@@ -163,14 +164,7 @@ iframe{
 .btn-skip { background: #f0f0f0; color: #333; }
 .btn-close { background: #ff4d4d; color: white; }
 
-#helpBtn{
-  position:fixed;
-  top:10px;
-  right:10px;
-  z-index:500;
-  padding: 8px 15px;
-  cursor: pointer;
-}
+/* Removed duplicate #helpBtn CSS that caused overlap */
 
 
 
@@ -281,7 +275,7 @@ iframe{
     </div>
 </div>
 
-<button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
+<!-- Removed duplicate help button -->
 
 
 
