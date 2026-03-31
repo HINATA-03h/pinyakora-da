@@ -1359,6 +1359,10 @@ workspace.addChangeListener(update);
 
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
+      // 現在Firebaseが認識している裏側の正確なドメインを表示し、コピーできるようにする
+      const currentDomain = window.location.hostname;
+      prompt("【確認用】Firebaseの「承認済みドメイン」に以下のドメインを追加してください:", currentDomain);
+
       signInWithPopup(auth, provider).catch(error => {
         console.error("Login Error:", error);
         alert("ログインに失敗しました: " + error.message);
