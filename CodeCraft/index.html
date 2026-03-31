@@ -7,20 +7,16 @@
 <script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
 
 <title>CodeCraft HTML/CSS</title>
-
+<script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
 
 <style>
-html {
-  height: 100%;
-}
-
 body{
   margin:0;
   font-family:sans-serif;
   height:100vh;
   display:flex;
+
   flex-direction:column;
-  overflow:hidden;
 }
 
 /* ヘッダー全体のデザイン */
@@ -78,16 +74,12 @@ body{
   gap:8px;
   padding:8px;
   min-height:0;
-  overflow:hidden; 
-  position: relative; /* ←これ追加！！ */
-
 }
 
 #blocklyDiv{
   flex:1;
   border:1px solid #ccc;
   min-width:300px;
-  height:100%;
 }
 
 .right{
@@ -96,21 +88,17 @@ body{
   flex-direction:column;
   min-width:300px;
   min-height:0;
-  overflow:hidden; 
 }
 
 textarea{
   flex:1;
   font-family:monospace;
   resize:none;
-  min-height:0;
 }
 
 iframe{
   flex:1;
   border:1px solid #ccc;
-  height:100%;
-  background:white;
 }
 
 
@@ -252,97 +240,33 @@ iframe{
   opacity: 0.95 !important;
 }
 
-/* 左を閉じた状態 */
-.container.collapsed #blocklyDiv {
-  display: none;
-}
-
-/* 右側をフルに広げる */
-.container.collapsed .right {
-  flex: 1 1 100%;
-}
-
-
-
-/* 左エリア全体 */
-#blocklyArea {
-  width: 260px;
-  transition: width 0.25s ease;
-  overflow: hidden;
-}
-
-.container.toolbox-hidden #blocklyArea {
-  width: 0;
-}
-
-.container.toolbox-hidden .blocklyToolboxDiv {
-  visibility: hidden;
-  width: 0 !important;
-}
-/* Blockly本体 */
-#blocklyDiv {
-  width: 100%;
-  height: 100%;
-}
-
-#toggleBtn {
-  position: absolute;
-  top: 50%;
-  left: 198px; /* ←まずは絶対ここにする */
-  transform: translateY(-50%);
-  transition: left 0.25s ease;
-
-  width: 25px;
-  height: 60px;
-  background: #4A90E2;
-  color: #fff;
-
-  border: none;
-  border-radius: 0 10px 10px 0;
-  cursor: pointer;
-
-  z-index: 9999; /* ←これ超重要（前に出す） */
-}
-
-/* 収納時 */
-.container.toolbox-hidden #toggleBtn {
-  left: 0;
-}
-/* カテゴリ全体（クリック範囲）を広げる */
-.blocklyTreeRow {
-  height: 50px !important;       /* 行の高さ */
-  line-height: 50px !important;  /* 文字を中央に */
-  padding: 0 10px !important;    /* 左右の余白 */
-}
-
-/* 文字 */
-.blocklyTreeLabel {
-  font-size: 20px !important;
-  font-weight: bold;
-}
 </style>
 </head>
 
 <body>
 <header class="app-header">
   <h1 class="logo">CodeCraft <span>HTML/CSS</span></h1>
-  <button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
+  <div class="header-controls" style="display: flex; align-items: center; gap: 15px;">
+    <div id="userInfo" style="display:none; color:white; font-size: 14px; font-weight: bold;"></div>
+    <button id="loginBtn" class="btn-auth" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Googleでログイン</button>
+    <button id="logoutBtn" class="btn-auth" style="display:none; background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">ログアウト</button>
+    <button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
+  </div>
 </header>
 
 
 
 <div class="container">
   <div id="blocklyDiv"></div>
-
- <button id="toggleBtn">◀</button>
-
   <div class="right">
     <div class="toolbar">
+        <button id="saveCloudBtn" class="btn-cloud" style="display:none; background:#3498db; color:white; border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:5px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: 0.2s;">☁️ クラウドに保存</button>
+        <button id="loadCloudBtn" class="btn-cloud" style="display:none; background:#9b59b6; color:white; border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:15px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: 0.2s;">☁️ クラウドから読込</button>
         <button onclick="downloadHTML()" class="btn-download">💾 HTMLとして保存</button>
     </div>
     <textarea id="codeArea" readonly></textarea>
     <iframe id="preview"></iframe>
-  </div>
+</div>
 </div>
 
 <div id="tutorialOverlay" class="overlay" style="display:none;">
@@ -357,8 +281,7 @@ iframe{
     </div>
 </div>
 
-
-
+<button id="helpBtn" onclick="startTutorial()">？ 使い方</button>
 
 
 
@@ -381,7 +304,7 @@ Blockly.Blocks['html_head'] = {
     this.appendDummyInput().appendField("＜head＞");
     this.appendStatementInput("CONTENT");
     this.appendDummyInput().appendField("＜/head＞");
-    this.setColour(230);
+    this.setColour(200);
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip("ページの情報を入れるタグだよ。タイトルやスタイルシートなどをここに書くんだ！");
@@ -393,7 +316,7 @@ Blockly.Blocks['html_body'] = {
     this.appendDummyInput().appendField("＜body＞");
     this.appendStatementInput("CONTENT");
     this.appendDummyInput().appendField("＜/body＞");
-    this.setColour(230);
+    this.setColour(200);
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip("ブラウザの画面に表示したい内容を入れるタグだよ");
@@ -776,7 +699,7 @@ Blockly.Blocks["html_style"] = {
       .appendField("＜/style＞");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(180);
+    this.setColour(160);
     this.setTooltip("CSSスタイルを直接書くことができるよ。ページ全体のデザインを調整するのに便利だよ！");
   }
 };
@@ -910,7 +833,7 @@ Blockly.Blocks['html_br'] = {
       .appendField('＜br＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(290);
+    this.setColour(120);
     this.setTooltip("改行を挿入するよ。文章の途中で改行したいときに使うんだ！");
   }
 };
@@ -920,7 +843,7 @@ Blockly.Blocks['html_hr'] = {
       .appendField('＜hr＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(290);
+    this.setColour(120);
     this.setTooltip("水平線を挿入するよ。内容の区切りを視覚的に示すのに使うんだ！");
   }
 };
@@ -930,7 +853,7 @@ Blockly.Blocks['html_meta'] = {
       .appendField('＜meta charset="UTF-8"＞');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(290);
+    this.setColour(160);
     this.setTooltip("文字エンコーディングを指定するよ。通常はUTF-8を使うんだ！");
   }
 };
@@ -946,7 +869,7 @@ Blockly.Blocks["html_input"] = {
       .appendField('">');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setColour(290);
+    this.setColour(60);
     this.setTooltip("入力フィールドを作るよ。ユーザーがテキストを入力できるようにするんだ！");
   }
 };
@@ -1004,6 +927,7 @@ const workspace = Blockly.inject('blocklyDiv', {
   </category>
   <category name="フォーム・操作" colour="200">
     <block type="html_form"></block>
+    <block type="html_input"></block>
     <block type="html_button"></block>
     <block type="html_label"></block>
     <block type="html_textarea"></block>
@@ -1019,16 +943,7 @@ const workspace = Blockly.inject('blocklyDiv', {
 </xml>`,
   trashcan: true
 });
-
-
-// ⭐ 初回サイズ調整
-Blockly.svgResize(workspace);
-
-// ⭐ 画面サイズ変更時に自動調整
-window.addEventListener("resize", () => {
-  Blockly.svgResize(workspace);
-});
-
+window.workspace = workspace; // クラウド保存用にグローバル登録
 
 /* ========= コード生成 ========= */
 
@@ -1390,23 +1305,126 @@ function createParticles() {
     }
 }
 
-const container = document.querySelector(".container");
-const toggleBtn = document.getElementById("toggleBtn");
-
-toggleBtn.addEventListener("click", () => {
-  container.classList.toggle("toolbox-hidden");
-
-  toggleBtn.textContent =
-    container.classList.contains("toolbox-hidden") ? "▶" : "◀";
-
-  // ⭐ これが超重要！！
-  setTimeout(() => {
-    Blockly.svgResize(workspace);
-  }, 100);
-});
-
+// ブロックが動いたら update 関数を呼ぶという命令
 workspace.addChangeListener(update);
 
+
+</script>
+
+<!-- Firebase SDK と連携ロジック -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPl_Pv76FIet1HY0jTO8V3q5JlztNWzHc",
+    authDomain: "codecraft-98d16.firebaseapp.com",
+    databaseURL: "https://codecraft-98d16-default-rtdb.firebaseio.com",
+    projectId: "codecraft-98d16",
+    storageBucket: "codecraft-98d16.firebasestorage.app",
+    messagingSenderId: "292648023816",
+    appId: "1:292648023816:web:8bc5de1ac34ab127101ebd",
+    measurementId: "G-H15820EYH2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userInfo = document.getElementById('userInfo');
+  const saveCloudBtn = document.getElementById('saveCloudBtn');
+  const loadCloudBtn = document.getElementById('loadCloudBtn');
+
+  // ログイン状態が変わった時の処理
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      if (userInfo) {
+        userInfo.style.display = 'inline-block';
+        userInfo.textContent = `👤 ${user.displayName} さん`;
+      }
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (logoutBtn) logoutBtn.style.display = 'inline-block';
+      if (saveCloudBtn) saveCloudBtn.style.display = 'inline-block';
+      if (loadCloudBtn) loadCloudBtn.style.display = 'inline-block';
+    } else {
+      currentUser = null;
+      if (userInfo) userInfo.style.display = 'none';
+      if (loginBtn) loginBtn.style.display = 'inline-block';
+      if (logoutBtn) logoutBtn.style.display = 'none';
+      if (saveCloudBtn) saveCloudBtn.style.display = 'none';
+      if (loadCloudBtn) loadCloudBtn.style.display = 'none';
+    }
+  });
+
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch(error => {
+        console.error("Login Error:", error);
+        alert("ログインに失敗しました: " + error.message);
+      });
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (confirm("ログアウトしますか？")) {
+        signOut(auth);
+      }
+    });
+  }
+
+  if (saveCloudBtn) {
+    saveCloudBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+      try {
+        saveCloudBtn.textContent = '保存中...';
+        const state = Blockly.serialization.workspaces.save(window.workspace);
+        const docRef = doc(db, "users", currentUser.uid);
+        await setDoc(docRef, {
+          workspaceData: JSON.stringify(state),
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        saveCloudBtn.textContent = '☁️ クラウドに保存';
+        alert("プロジェクトをクラウドに保存しました！☁️");
+      } catch(error) {
+        console.error("Save Error:", error);
+        saveCloudBtn.textContent = '☁️ クラウドに保存';
+        alert("保存に失敗しました。Firestoreのルール設定等を確認してください。\\n" + error.message);
+      }
+    });
+  }
+
+  if (loadCloudBtn) {
+    loadCloudBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+      if (!confirm("現在のブロックは上書きされます。クラウドから読み込みますか？")) return;
+      try {
+        loadCloudBtn.textContent = '読込中...';
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().workspaceData) {
+          const state = JSON.parse(docSnap.data().workspaceData);
+          Blockly.serialization.workspaces.load(state, window.workspace);
+          loadCloudBtn.textContent = '☁️ クラウドから読込';
+          alert("プロジェクトを復元しました！🚀");
+        } else {
+          loadCloudBtn.textContent = '☁️ クラウドから読込';
+          alert("保存されたデータが見つかりません。");
+        }
+      } catch(error) {
+        console.error("Load Error:", error);
+        loadCloudBtn.textContent = '☁️ クラウドから読込';
+        alert("読み込みに失敗しました: " + error.message);
+      }
+    });
+  }
 </script>
 </body>
 </html>
